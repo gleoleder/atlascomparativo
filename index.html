@@ -67,8 +67,8 @@
 import {define} from "./_observablehq/client.a0083439.js";
 import {registerFile} from "./_observablehq/stdlib.277aeab8.js";
 
-registerFile("./campos.json", {"name":"./campos.json","mimeType":"application/json","path":"./_file/campos.d9049a43.json","lastModified":1774901428983,"size":916});
-registerFile("./ciudades.json", {"name":"./ciudades.json","mimeType":"application/json","path":"./_file/ciudades.783449d8.json","lastModified":1774901429128,"size":17100});
+registerFile("./campos.json", {"name":"./campos.json","mimeType":"application/json","path":"./_file/campos.d9049a43.json","lastModified":1774901776173,"size":916});
+registerFile("./ciudades.json", {"name":"./ciudades.json","mimeType":"application/json","path":"./_file/ciudades.783449d8.json","lastModified":1774901776320,"size":17100});
 
 define({id: "d6d41953", mode: "inline", inputs: ["ciudadInput","display"], body: async (ciudadInput,display) => {
 display(await(
@@ -684,7 +684,7 @@ define({id: "f0a7865b", inputs: ["mapA","mapB"], body: (mapA,mapB) => {
 }
 }});
 
-define({id: "f70418c6", inputs: ["corrResult","html","d3","indice","seleccionA","seleccionB","colorReg","highlightManzano","highlightMultiple","clearHighlight"], outputs: ["corrScatterPlot"], body: (corrResult,html,d3,indice,seleccionA,seleccionB,colorReg,highlightManzano,highlightMultiple,clearHighlight) => {
+define({id: "a714a104", inputs: ["corrResult","html","d3","indice","seleccionA","seleccionB","colorReg","highlightManzano","highlightMultiple","clearHighlight"], outputs: ["corrScatterPlot"], body: (corrResult,html,d3,indice,seleccionA,seleccionB,colorReg,highlightManzano,highlightMultiple,clearHighlight) => {
 // ── Scatter plot Canvas 2D — rápido con cualquier cantidad de puntos ──
 const corrScatterPlot = (() => {
   if (!corrResult || corrResult.n < 5) {
@@ -739,14 +739,25 @@ const corrScatterPlot = (() => {
   const ctx = canvas.getContext("2d");
   ctx.scale(dpr, dpr);
 
-  // ── Estado de selección ──────────────────────────────────────
-  let selectedSet = new Set();   // índices seleccionados por brush
-  let brushStart = null;         // {cx, cy} en coordenadas canvas
-  let brushCur   = null;
-  let isBrushing = false;
+  // ── Estado de selección (lasso libre) ───────────────────────
+  let selectedSet = new Set();
+  let lassoPath   = [];          // [{cx,cy}] puntos del trazo libre
+  let isLassoing  = false;
+
+  // ── Ray-casting: punto dentro del polígono lasso ─────────────
+  function pointInLasso(px, py, poly) {
+    let inside = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const xi = poly[i].cx, yi = poly[i].cy;
+      const xj = poly[j].cx, yj = poly[j].cy;
+      if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi))
+        inside = !inside;
+    }
+    return inside;
+  }
 
   // ── Función de dibujo ────────────────────────────────────────
-  function draw(hoveredIdx = -1, brush = null) {
+  function draw(hoveredIdx = -1, lasso = null) {
     ctx.clearRect(0, 0, W, H);
 
     // Fondo área de plot
@@ -822,18 +833,18 @@ const corrScatterPlot = (() => {
       ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
     }
 
-    // Rectángulo de selección (brush en curso)
-    if (brush) {
-      const rx = Math.min(brush.x0, brush.x1);
-      const ry = Math.min(brush.y0, brush.y1);
-      const rw = Math.abs(brush.x1 - brush.x0);
-      const rh = Math.abs(brush.y1 - brush.y0);
-      ctx.fillStyle = "rgba(245,158,11,0.12)";
-      ctx.fillRect(rx, ry, rw, rh);
+    // Lasso libre en curso
+    if (lasso && lasso.length > 1) {
+      ctx.beginPath();
+      ctx.moveTo(lasso[0].cx, lasso[0].cy);
+      for (let k = 1; k < lasso.length; k++) ctx.lineTo(lasso[k].cx, lasso[k].cy);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(245,158,11,0.10)";
+      ctx.fill();
       ctx.strokeStyle = "#f59e0b";
       ctx.lineWidth = 1.5;
       ctx.setLineDash([4, 3]);
-      ctx.strokeRect(rx, ry, rw, rh);
+      ctx.stroke();
       ctx.setLineDash([]);
     }
 
@@ -915,38 +926,25 @@ const corrScatterPlot = (() => {
       cy: Math.max(MT, Math.min(MT + PH, cy)),
     };
   }
-  function pointsInRect(x0, y0, x1, y1) {
-    const rxMin = Math.min(x0, x1), rxMax = Math.max(x0, x1);
-    const ryMin = Math.min(y0, y1), ryMax = Math.max(y0, y1);
-    const result = new Set();
-    for (let i = 0; i < n; i++) {
-      const px = sx(xs[i]), py = sy(ys[i]);
-      if (px >= rxMin && px <= rxMax && py >= ryMin && py <= ryMax) result.add(i);
-    }
-    return result;
-  }
 
-  // ── Mousedown: inicio de brush ────────────────────────────────
+  // ── Mousedown: inicio de lasso ────────────────────────────────
   canvas.addEventListener("mousedown", (e) => {
     if (e.button !== 0) return;
     const { cx, cy } = canvasXY(e);
     if (cx < ML || cx > ML + PW || cy < MT || cy > MT + PH) return;
-    isBrushing = true;
-    brushStart = { cx, cy };
-    brushCur   = { cx, cy };
+    isLassoing = true;
+    lassoPath  = [clampToPlot(cx, cy)];
     tip.style.display = "none";
     e.preventDefault();
   });
 
-  // ── Mousemove: hover normal O arrastre de brush ───────────────
+  // ── Mousemove: trazo libre O hover ────────────────────────────
   canvas.addEventListener("mousemove", (e) => {
     const { cx, cy } = canvasXY(e);
 
-    if (isBrushing) {
-      const c = clampToPlot(cx, cy);
-      brushCur = c;
-      const brush = { x0: brushStart.cx, y0: brushStart.cy, x1: brushCur.cx, y1: brushCur.cy };
-      draw(-1, brush);
+    if (isLassoing) {
+      lassoPath.push(clampToPlot(cx, cy));
+      draw(-1, lassoPath);
       return;
     }
 
@@ -969,7 +967,7 @@ const corrScatterPlot = (() => {
       tip.innerHTML =
         `<b>${indice[seleccionA]?.nombre ?? seleccionA}:</b> ${fmtA(xs[idx])}<br>` +
         `<b>${indice[seleccionB]?.nombre ?? seleccionB}:</b> ${fmtB(ys[idx])}<br>` +
-        `<span style="color:#8b949e;font-size:10px">Click para localizar · Arrastra para seleccionar grupo</span>`;
+        `<span style="color:#8b949e;font-size:10px">Click · Mantén y dibuja para seleccionar grupo</span>`;
       const tx = Math.min(sx(xs[idx]) + 12, W - 180);
       const ty = Math.max(sy(ys[idx]) - 56, 0);
       tip.style.left = tx + "px"; tip.style.top = ty + "px";
@@ -979,16 +977,18 @@ const corrScatterPlot = (() => {
     }
   });
 
-  // ── Mouseup: finalizar brush o click simple ───────────────────
+  // ── Mouseup: cerrar lasso y calcular selección ────────────────
   canvas.addEventListener("mouseup", (e) => {
-    if (!isBrushing) return;
-    isBrushing = false;
-    const { cx, cy } = canvasXY(e);
-    const dragDist = Math.abs(cx - brushStart.cx) + Math.abs(cy - brushStart.cy);
+    if (!isLassoing) return;
+    isLassoing = false;
+    const totalDist = lassoPath.reduce((acc, p, i) => {
+      if (i === 0) return 0;
+      return acc + Math.abs(p.cx - lassoPath[i-1].cx) + Math.abs(p.cy - lassoPath[i-1].cy);
+    }, 0);
 
-    if (dragDist < 5) {
+    if (totalDist < 8) {
       // Click simple → selección de un punto
-      brushStart = brushCur = null;
+      lassoPath = [];
       draw();
       if (hoverIdx >= 0) {
         const geom = geoms[hoverIdx];
@@ -999,10 +999,13 @@ const corrScatterPlot = (() => {
         updateSelInfo();
       }
     } else {
-      // Brush → selección múltiple
-      const c = clampToPlot(cx, cy);
-      selectedSet = pointsInRect(brushStart.cx, brushStart.cy, c.cx, c.cy);
-      brushStart = brushCur = null;
+      // Lasso → selección múltiple por ray-casting
+      const poly = lassoPath;
+      selectedSet = new Set();
+      for (let i = 0; i < n; i++) {
+        if (pointInLasso(sx(xs[i]), sy(ys[i]), poly)) selectedSet.add(i);
+      }
+      lassoPath = [];
       draw();
       if (selectedSet.size > 0) {
         highlightMultiple(selectedSet, geoms, lngs, lats);
@@ -1014,10 +1017,10 @@ const corrScatterPlot = (() => {
     }
   });
 
-  // Cancelar brush si el mouse sale del canvas durante arrastre
+  // Cancelar lasso si el mouse sale del canvas
   canvas.addEventListener("mouseleave", () => {
-    if (isBrushing) {
-      isBrushing = false; brushStart = brushCur = null; draw();
+    if (isLassoing) {
+      isLassoing = false; lassoPath = []; draw();
     }
     if (hoverIdx !== -1) { hoverIdx = -1; draw(); }
     tip.style.display = "none";
@@ -1116,7 +1119,7 @@ return {corrScatterPlot};
 <div class="observablehq observablehq--block"><!--:37749503:--></div>
 <div class="observablehq observablehq--block"><!--:18198a81:--></div>
 <div class="observablehq observablehq--block"><!--:f0a7865b:--></div>
-<div class="observablehq observablehq--block"><!--:f70418c6:--></div>
+<div class="observablehq observablehq--block"><!--:a714a104:--></div>
 </main>
 </div>
 </body>
