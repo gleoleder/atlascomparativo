@@ -67,8 +67,8 @@
 import {define} from "./_observablehq/client.a0083439.js";
 import {registerFile} from "./_observablehq/stdlib.277aeab8.js";
 
-registerFile("./campos.json", {"name":"./campos.json","mimeType":"application/json","path":"./_file/campos.d9049a43.json","lastModified":1774900561602,"size":916});
-registerFile("./ciudades.json", {"name":"./ciudades.json","mimeType":"application/json","path":"./_file/ciudades.783449d8.json","lastModified":1774900561806,"size":17100});
+registerFile("./campos.json", {"name":"./campos.json","mimeType":"application/json","path":"./_file/campos.d9049a43.json","lastModified":1774901196248,"size":916});
+registerFile("./ciudades.json", {"name":"./ciudades.json","mimeType":"application/json","path":"./_file/ciudades.783449d8.json","lastModified":1774901196389,"size":17100});
 
 define({id: "d6d41953", mode: "inline", inputs: ["ciudadInput","display"], body: async (ciudadInput,display) => {
 display(await(
@@ -434,8 +434,8 @@ function applyB(campo) {
 return {applyB};
 }});
 
-define({id: "6162a554", inputs: ["mapA","mapB"], outputs: ["highlightManzano","clearHighlight"], body: (mapA,mapB) => {
-// ── Resaltar manzano con neon en ambos mapas ────────────────────
+define({id: "250480fb", inputs: ["mapA","mapB"], outputs: ["highlightManzano","highlightMultiple","clearHighlight","geoms_global","lngs_global","lats_global"], body: (mapA,mapB) => {
+// ── Resaltar un manzano con neon en ambos mapas ─────────────────
 function highlightManzano(geom, lng, lat) {
   const geojson = {
     type: "FeatureCollection",
@@ -449,12 +449,36 @@ function highlightManzano(geom, lng, lat) {
   }
 }
 
+// ── Resaltar múltiples manzanos (selección por área) ────────────
+function highlightMultiple(indices) {
+  const features = [];
+  let sumLng = 0, sumLat = 0, count = 0;
+  for (const i of indices) {
+    if (geoms_global[i]) {
+      features.push({ type: "Feature", geometry: geoms_global[i], properties: {} });
+      if (lngs_global[i] != null) { sumLng += lngs_global[i]; sumLat += lats_global[i]; count++; }
+    }
+  }
+  const geojson = { type: "FeatureCollection", features };
+  mapA.getSource("highlight")?.setData(geojson);
+  mapB.getSource("highlight")?.setData(geojson);
+  // Volar al centroide de la selección solo si son pocos puntos
+  if (count > 0 && indices.size <= 30) {
+    const cLng = sumLng / count, cLat = sumLat / count;
+    mapA.flyTo({ center: [cLng, cLat], zoom: 14, duration: 600 });
+    mapB.flyTo({ center: [cLng, cLat], zoom: 14, duration: 600 });
+  }
+}
+
 function clearHighlight() {
   const empty = { type: "FeatureCollection", features: [] };
   mapA.getSource("highlight")?.setData(empty);
   mapB.getSource("highlight")?.setData(empty);
 }
-return {highlightManzano,clearHighlight};
+
+// Referencias globales a geoms/lngs/lats para uso desde highlightMultiple
+let geoms_global = [], lngs_global = [], lats_global = [];
+return {highlightManzano,highlightMultiple,clearHighlight,geoms_global,lngs_global,lats_global};
 }});
 
 define({id: "c8be20d8", inputs: ["Mutable","indice","mapA"], outputs: ["rawFeatures","fetchCityData"], body: (Mutable,indice,mapA) => {
@@ -664,238 +688,6 @@ define({id: "f0a7865b", inputs: ["mapA","mapB"], body: (mapA,mapB) => {
 }
 }});
 
-define({id: "eb9a98b8", inputs: ["corrResult","html","d3","indice","seleccionA","seleccionB","colorReg","highlightManzano","clearHighlight"], outputs: ["corrScatterPlot"], body: (corrResult,html,d3,indice,seleccionA,seleccionB,colorReg,highlightManzano,clearHighlight) => {
-// ── Scatter plot Canvas 2D — rápido con cualquier cantidad de puntos ──
-const corrScatterPlot = (() => {
-  if (!corrResult || corrResult.n < 5) {
-    return html`<div class="no-data-msg" style="min-width:320px;padding:24px 0">
-      ${corrResult
-        ? `Solo ${corrResult.n} puntos. Presiona "Buscar" para cargar la ciudad completa.`
-        : "Selecciona una ciudad y presiona Buscar."}
-    </div>`;
-  }
-
-  const { xs, ys, lngs, lats, geoms, regresiones } = corrResult;
-  const n = xs.length;
-
-  // ── Dimensiones y márgenes ───────────────────────────────────
-  const W  = Math.min(820, Math.max(460, window.innerWidth * 0.54));
-  const H  = Math.round(W * 0.60);
-  const ML = 68, MR = 16, MT = 18, MB = 58;
-  const PW = W - ML - MR, PH = H - MT - MB;
-  const dpr = window.devicePixelRatio || 1;
-
-  // ── Escala de datos ──────────────────────────────────────────
-  const xmin = Math.min(...xs), xmax = Math.max(...xs);
-  const ymin = Math.min(...ys), ymax = Math.max(...ys);
-  const xRange = xmax - xmin || 1, yRange = ymax - ymin || 1;
-  const sx = (v) => ML + (v - xmin) / xRange * PW;
-  const sy = (v) => MT + PH - (v - ymin) / yRange * PH;
-  // Inversa para tooltip
-  const ixFromPx = (px) => xmin + (px - ML) / PW * xRange;
-  const iyFromPy = (py) => ymin + (MT + PH - py) / PH * yRange;
-
-  // ── Ticks bonitos ────────────────────────────────────────────
-  function niceTicks(lo, hi, count = 5) {
-    const raw = (hi - lo) / count;
-    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
-    const nice = [1, 2, 2.5, 5, 10].map(f => f * mag).find(s => (hi - lo) / s <= count + 1) || mag * 10;
-    const ticks = [];
-    for (let v = Math.ceil(lo / nice) * nice; v <= hi + nice * 0.01; v += nice)
-      ticks.push(+v.toPrecision(8));
-    return ticks;
-  }
-  const xTicks = niceTicks(xmin, xmax, 6);
-  const yTicks = niceTicks(ymin, ymax, 5);
-
-  // ── Canvas ───────────────────────────────────────────────────
-  const canvas = document.createElement("canvas");
-  canvas.width  = W * dpr;
-  canvas.height = H * dpr;
-  canvas.style.width  = W + "px";
-  canvas.style.height = H + "px";
-  canvas.style.cursor = "crosshair";
-  canvas.style.display = "block";
-  const ctx = canvas.getContext("2d");
-  ctx.scale(dpr, dpr);
-
-  // ── Función de dibujo (se llama también al hover) ────────────
-  function draw(hoveredIdx = -1) {
-    ctx.clearRect(0, 0, W, H);
-
-    // Fondo área de plot
-    ctx.fillStyle = "rgba(22,27,34,0.72)";
-    ctx.fillRect(ML, MT, PW, PH);
-
-    // Grilla
-    ctx.strokeStyle = "#2d333b";
-    ctx.lineWidth = 0.5;
-    xTicks.forEach(v => {
-      const x = sx(v);
-      ctx.beginPath(); ctx.moveTo(x, MT); ctx.lineTo(x, MT + PH); ctx.stroke();
-    });
-    yTicks.forEach(v => {
-      const y = sy(v);
-      ctx.beginPath(); ctx.moveTo(ML, y); ctx.lineTo(ML + PW, y); ctx.stroke();
-    });
-
-    // Etiquetas de ejes
-    ctx.font = `11px 'Space Grotesk', sans-serif`;
-    ctx.fillStyle = "#8b949e";
-    ctx.textAlign = "center";
-    xTicks.forEach(v => ctx.fillText(d3.format(".3~g")(v), sx(v), MT + PH + 16));
-    ctx.textAlign = "right";
-    yTicks.forEach(v => ctx.fillText(d3.format(".3~g")(v), ML - 6, sy(v) + 4));
-
-    // Título de ejes
-    ctx.fillStyle = "#e6edf3";
-    ctx.font = `600 12px 'Space Grotesk', sans-serif`;
-    ctx.textAlign = "center";
-    ctx.fillText(indice[seleccionA]?.nombre ?? seleccionA, ML + PW / 2, H - 12);
-    ctx.save();
-    ctx.translate(13, MT + PH / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText(indice[seleccionB]?.nombre ?? seleccionB, 0, 0);
-    ctx.restore();
-
-    // Líneas de regresión
-    for (const reg of regresiones) {
-      ctx.strokeStyle = colorReg[reg.type] ?? "#fff";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      let first = true;
-      for (let i = 0; i <= 400; i++) {
-        const xv = xmin + xRange * i / 400;
-        const yv = reg.fn(xv);
-        if (!isFinite(yv) || yv < ymin - yRange || yv > ymax + yRange * 2) { first = true; continue; }
-        if (first) { ctx.moveTo(sx(xv), sy(yv)); first = false; }
-        else ctx.lineTo(sx(xv), sy(yv));
-      }
-      ctx.stroke();
-    }
-
-    // Puntos (todos — canvas maneja 10 000+ sin problema)
-    for (let i = 0; i < n; i++) {
-      const px = sx(xs[i]), py = sy(ys[i]);
-      if (i === hoveredIdx) continue; // el hover se dibuja encima
-      ctx.fillStyle = "rgba(16,185,129,0.5)";
-      ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI * 2); ctx.fill();
-    }
-
-    // Punto hover resaltado
-    if (hoveredIdx >= 0) {
-      const px = sx(xs[hoveredIdx]), py = sy(ys[hoveredIdx]);
-      ctx.fillStyle = "#f59e0b";
-      ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
-    }
-
-    // Borde
-    ctx.strokeStyle = "#444c56"; ctx.lineWidth = 1;
-    ctx.strokeRect(ML, MT, PW, PH);
-  }
-
-  draw();
-
-  // ── Leyenda HTML (fuera del canvas, a la derecha) ────────────
-  const legendDiv = document.createElement("div");
-  legendDiv.style.cssText = `
-    display:flex;flex-direction:column;justify-content:center;gap:6px;
-    padding:10px 14px;min-width:168px;
-    background:rgba(22,27,34,0.72);border:1px solid #30363d;border-radius:8px;
-    font-family:'Space Grotesk',sans-serif;align-self:center;flex-shrink:0;
-  `;
-  // n total
-  const nEl = document.createElement("div");
-  nEl.style.cssText = `font-size:10px;color:#8b949e;letter-spacing:0.05em;margin-bottom:4px;border-bottom:1px solid #30363d;padding-bottom:6px;`;
-  nEl.textContent = `n = ${n.toLocaleString()}`;
-  legendDiv.appendChild(nEl);
-  // items de regresión
-  for (const reg of regresiones) {
-    const r2txt = isFinite(reg.r2) ? reg.r2.toFixed(3) : "—";
-    const item = document.createElement("div");
-    item.style.cssText = `display:flex;align-items:center;gap:7px;`;
-    const line = document.createElement("span");
-    line.style.cssText = `display:inline-block;width:22px;height:2px;border-radius:2px;flex-shrink:0;background:${colorReg[reg.type] ?? "#fff"};`;
-    const lbl = document.createElement("span");
-    lbl.style.cssText = `font-size:11px;color:#e6edf3;white-space:nowrap;`;
-    lbl.innerHTML = `${reg.type} &nbsp;<span style="color:#8b949e">R²=${r2txt}</span>`;
-    item.appendChild(line);
-    item.appendChild(lbl);
-    legendDiv.appendChild(item);
-  }
-
-  // ── Tooltip overlay ──────────────────────────────────────────
-  const outer = document.createElement("div");
-  outer.style.cssText = "display:flex;align-items:flex-start;gap:12px;";
-  const wrap = document.createElement("div");
-  wrap.style.cssText = "position:relative;display:inline-block;flex-shrink:0;";
-  const tip = document.createElement("div");
-  tip.style.cssText = `position:absolute;pointer-events:none;display:none;
-    background:rgba(22,27,34,0.96);border:1px solid #30363d;border-radius:6px;
-    padding:6px 10px;font-size:12px;color:#e6edf3;
-    font-family:'Space Grotesk',sans-serif;white-space:nowrap;z-index:100;`;
-  wrap.appendChild(canvas);
-  wrap.appendChild(tip);
-  outer.appendChild(wrap);
-  outer.appendChild(legendDiv);
-
-  // Búsqueda del punto más cercano con umbral
-  let hoverIdx = -1;
-  const THRESHOLD_SQ = 20 * 20; // px²
-
-  canvas.addEventListener("mousemove", (e) => {
-    const r = canvas.getBoundingClientRect();
-    const cx = e.clientX - r.left, cy = e.clientY - r.top;
-    if (cx < ML || cx > ML + PW || cy < MT || cy > MT + PH) {
-      if (hoverIdx !== -1) { hoverIdx = -1; draw(); tip.style.display = "none"; }
-      return;
-    }
-    let minD = THRESHOLD_SQ, idx = -1;
-    for (let i = 0; i < n; i++) {
-      const dx = sx(xs[i]) - cx, dy = sy(ys[i]) - cy;
-      const d = dx * dx + dy * dy;
-      if (d < minD) { minD = d; idx = i; }
-    }
-    if (idx === hoverIdx) return;
-    hoverIdx = idx;
-    draw(idx);
-    if (idx >= 0) {
-      const fmtA = d3.format(indice[seleccionA]?.format ?? ".4~g");
-      const fmtB = d3.format(indice[seleccionB]?.format ?? ".4~g");
-      tip.innerHTML =
-        `<b>${indice[seleccionA]?.nombre ?? seleccionA}:</b> ${fmtA(xs[idx])}<br>` +
-        `<b>${indice[seleccionB]?.nombre ?? seleccionB}:</b> ${fmtB(ys[idx])}<br>` +
-        `<span style="color:#8b949e;font-size:10px">Click para localizar en el mapa</span>`;
-      const tx = Math.min(sx(xs[idx]) + 12, W - 180);
-      const ty = Math.max(sy(ys[idx]) - 56, 0);
-      tip.style.left = tx + "px"; tip.style.top = ty + "px";
-      tip.style.display = "block";
-    } else {
-      tip.style.display = "none";
-    }
-  });
-
-  canvas.addEventListener("mouseleave", () => {
-    if (hoverIdx !== -1) { hoverIdx = -1; draw(); }
-    tip.style.display = "none";
-  });
-
-  canvas.addEventListener("click", () => {
-    if (hoverIdx < 0) return;
-    const geom = geoms[hoverIdx];
-    const lng = lngs[hoverIdx], lat = lats[hoverIdx];
-    if (geom) highlightManzano(geom, lng, lat);
-    else if (lng != null) highlightManzano({ type: "Point", coordinates: [lng, lat] }, lng, lat);
-  });
-
-  canvas.addEventListener("dblclick", () => clearHighlight());
-
-  return outer;
-})();
-return {corrScatterPlot};
-}});
-
 </script>
 </head>
 <body>
@@ -968,7 +760,7 @@ return {corrScatterPlot};
 <div class="observablehq observablehq--block"><!--:26f2c498:--></div>
 <div class="observablehq observablehq--block"><!--:a9b6c8d3:--></div>
 <div class="observablehq observablehq--block"><!--:7d93fc70:--></div>
-<div class="observablehq observablehq--block"><!--:6162a554:--></div>
+<div class="observablehq observablehq--block"><!--:250480fb:--></div>
 <div class="observablehq observablehq--block"><!--:c8be20d8:--></div>
 <div class="observablehq observablehq--block"><!--:f85bf30c:--></div>
 <div class="observablehq observablehq--block"><!--:5509fe93:--></div>
@@ -976,7 +768,9 @@ return {corrScatterPlot};
 <div class="observablehq observablehq--block"><!--:37749503:--></div>
 <div class="observablehq observablehq--block"><!--:18198a81:--></div>
 <div class="observablehq observablehq--block"><!--:f0a7865b:--></div>
-<div class="observablehq observablehq--block"><!--:eb9a98b8:--></div>
+<div class="observablehq observablehq--block">
+  <div class="observablehq--inspect observablehq--error">SyntaxError: Assignment to external variable 'geoms_global' (14:2)</div>
+</div>
 </main>
 </div>
 </body>
