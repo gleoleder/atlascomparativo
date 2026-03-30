@@ -18,7 +18,7 @@
 <link rel="modulepreload" href="./_npm/maplibre-gl@5.21.1/13f11ada.js">
 <link rel="modulepreload" href="./_npm/pmtiles@4.4.0/fc4e0a03.js">
 <link rel="modulepreload" href="./_import/components/pmtiles-url.b9ccf4c7.js">
-<link rel="modulepreload" href="./_import/components/capas.cf881e52.js">
+<link rel="modulepreload" href="./_import/components/capas.e3a478d2.js">
 <link rel="modulepreload" href="./_import/components/inputs.6d49fc73.js">
 <link rel="modulepreload" href="./_import/components/correlacion.df6a09c4.js">
 <link rel="modulepreload" href="./_npm/d3@7.9.0/66d82917.js">
@@ -67,8 +67,8 @@
 import {define} from "./_observablehq/client.a0083439.js";
 import {registerFile} from "./_observablehq/stdlib.277aeab8.js";
 
-registerFile("./campos.json", {"name":"./campos.json","mimeType":"application/json","path":"./_file/campos.d9049a43.json","lastModified":1774898583252,"size":916});
-registerFile("./ciudades.json", {"name":"./ciudades.json","mimeType":"application/json","path":"./_file/ciudades.783449d8.json","lastModified":1774898583410,"size":17100});
+registerFile("./campos.json", {"name":"./campos.json","mimeType":"application/json","path":"./_file/campos.d9049a43.json","lastModified":1774900561602,"size":916});
+registerFile("./ciudades.json", {"name":"./ciudades.json","mimeType":"application/json","path":"./_file/ciudades.783449d8.json","lastModified":1774900561806,"size":17100});
 
 define({id: "d6d41953", mode: "inline", inputs: ["ciudadInput","display"], body: async (ciudadInput,display) => {
 display(await(
@@ -141,7 +141,7 @@ return {PMTILES_URL,pm};
 }});
 
 define({id: "1e15a01c", inputs: ["FileAttachment"], outputs: ["campos","ciudades","indice","autoSelect","computeAll","extraerPairesDeFeatures","interpretarPearson","interpretarR2"], body: async (FileAttachment) => {
-const [{indice}, {autoSelect}, {computeAll, extraerPairesDeFeatures, interpretarPearson, interpretarR2}] = await Promise.all([import("./_import/components/capas.cf881e52.js"), import("./_import/components/inputs.6d49fc73.js"), import("./_import/components/correlacion.df6a09c4.js")]);
+const [{indice}, {autoSelect}, {computeAll, extraerPairesDeFeatures, interpretarPearson, interpretarR2}] = await Promise.all([import("./_import/components/capas.e3a478d2.js"), import("./_import/components/inputs.6d49fc73.js"), import("./_import/components/correlacion.df6a09c4.js")]);
 // ── Cargar datos y componentes ──────────────────────────────────
 const campos   = await FileAttachment("./campos.json").json();
 const ciudades = await FileAttachment("./ciudades.json").json();
