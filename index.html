@@ -67,8 +67,8 @@
 import {define} from "./_observablehq/client.a0083439.js";
 import {registerFile} from "./_observablehq/stdlib.277aeab8.js";
 
-registerFile("./campos.json", {"name":"./campos.json","mimeType":"application/json","path":"./_file/campos.d9049a43.json","lastModified":1774898006350,"size":916});
-registerFile("./ciudades.json", {"name":"./ciudades.json","mimeType":"application/json","path":"./_file/ciudades.783449d8.json","lastModified":1774898006485,"size":17100});
+registerFile("./campos.json", {"name":"./campos.json","mimeType":"application/json","path":"./_file/campos.d9049a43.json","lastModified":1774898583252,"size":916});
+registerFile("./ciudades.json", {"name":"./ciudades.json","mimeType":"application/json","path":"./_file/ciudades.783449d8.json","lastModified":1774898583410,"size":17100});
 
 define({id: "d6d41953", mode: "inline", inputs: ["ciudadInput","display"], body: async (ciudadInput,display) => {
 display(await(
@@ -664,7 +664,7 @@ define({id: "f0a7865b", inputs: ["mapA","mapB"], body: (mapA,mapB) => {
 }
 }});
 
-define({id: "2b0bfa7b", inputs: ["corrResult","html","d3","indice","seleccionA","seleccionB","colorReg","highlightManzano","clearHighlight"], outputs: ["corrScatterPlot"], body: (corrResult,html,d3,indice,seleccionA,seleccionB,colorReg,highlightManzano,clearHighlight) => {
+define({id: "eb9a98b8", inputs: ["corrResult","html","d3","indice","seleccionA","seleccionB","colorReg","highlightManzano","clearHighlight"], outputs: ["corrScatterPlot"], body: (corrResult,html,d3,indice,seleccionA,seleccionB,colorReg,highlightManzano,clearHighlight) => {
 // ── Scatter plot Canvas 2D — rápido con cualquier cantidad de puntos ──
 const corrScatterPlot = (() => {
   if (!corrResult || corrResult.n < 5) {
@@ -679,9 +679,9 @@ const corrScatterPlot = (() => {
   const n = xs.length;
 
   // ── Dimensiones y márgenes ───────────────────────────────────
-  const W  = Math.min(880, Math.max(500, window.innerWidth * 0.58));
+  const W  = Math.min(820, Math.max(460, window.innerWidth * 0.54));
   const H  = Math.round(W * 0.60);
-  const ML = 68, MR = 24, MT = 18, MB = 58;
+  const ML = 68, MR = 16, MT = 18, MB = 58;
   const PW = W - ML - MR, PH = H - MT - MB;
   const dpr = window.devicePixelRatio || 1;
 
@@ -790,36 +790,46 @@ const corrScatterPlot = (() => {
       ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
     }
 
-    // Leyenda de regresiones
-    let ly = MT + 8;
-    ctx.font = `11px 'Space Grotesk', sans-serif`;
-    for (const reg of regresiones) {
-      const label = `${reg.type}  R²=${isFinite(reg.r2) ? reg.r2.toFixed(3) : "—"}`;
-      const tw = ctx.measureText(label).width;
-      ctx.fillStyle = "rgba(13,17,23,0.78)";
-      ctx.fillRect(ML + 6, ly - 11, tw + 24, 15);
-      ctx.strokeStyle = colorReg[reg.type]; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(ML + 8, ly - 4); ctx.lineTo(ML + 22, ly - 4); ctx.stroke();
-      ctx.fillStyle = "#e6edf3"; ctx.textAlign = "left";
-      ctx.fillText(label, ML + 26, ly);
-      ly += 17;
-    }
-
     // Borde
     ctx.strokeStyle = "#444c56"; ctx.lineWidth = 1;
     ctx.strokeRect(ML, MT, PW, PH);
-
-    // Conteo
-    ctx.font = `10px 'Space Grotesk', sans-serif`;
-    ctx.fillStyle = "#8b949e"; ctx.textAlign = "right";
-    ctx.fillText(`n = ${n}`, ML + PW - 4, MT + 14);
   }
 
   draw();
 
+  // ── Leyenda HTML (fuera del canvas, a la derecha) ────────────
+  const legendDiv = document.createElement("div");
+  legendDiv.style.cssText = `
+    display:flex;flex-direction:column;justify-content:center;gap:6px;
+    padding:10px 14px;min-width:168px;
+    background:rgba(22,27,34,0.72);border:1px solid #30363d;border-radius:8px;
+    font-family:'Space Grotesk',sans-serif;align-self:center;flex-shrink:0;
+  `;
+  // n total
+  const nEl = document.createElement("div");
+  nEl.style.cssText = `font-size:10px;color:#8b949e;letter-spacing:0.05em;margin-bottom:4px;border-bottom:1px solid #30363d;padding-bottom:6px;`;
+  nEl.textContent = `n = ${n.toLocaleString()}`;
+  legendDiv.appendChild(nEl);
+  // items de regresión
+  for (const reg of regresiones) {
+    const r2txt = isFinite(reg.r2) ? reg.r2.toFixed(3) : "—";
+    const item = document.createElement("div");
+    item.style.cssText = `display:flex;align-items:center;gap:7px;`;
+    const line = document.createElement("span");
+    line.style.cssText = `display:inline-block;width:22px;height:2px;border-radius:2px;flex-shrink:0;background:${colorReg[reg.type] ?? "#fff"};`;
+    const lbl = document.createElement("span");
+    lbl.style.cssText = `font-size:11px;color:#e6edf3;white-space:nowrap;`;
+    lbl.innerHTML = `${reg.type} &nbsp;<span style="color:#8b949e">R²=${r2txt}</span>`;
+    item.appendChild(line);
+    item.appendChild(lbl);
+    legendDiv.appendChild(item);
+  }
+
   // ── Tooltip overlay ──────────────────────────────────────────
+  const outer = document.createElement("div");
+  outer.style.cssText = "display:flex;align-items:flex-start;gap:12px;";
   const wrap = document.createElement("div");
-  wrap.style.cssText = "position:relative;display:inline-block;";
+  wrap.style.cssText = "position:relative;display:inline-block;flex-shrink:0;";
   const tip = document.createElement("div");
   tip.style.cssText = `position:absolute;pointer-events:none;display:none;
     background:rgba(22,27,34,0.96);border:1px solid #30363d;border-radius:6px;
@@ -827,6 +837,8 @@ const corrScatterPlot = (() => {
     font-family:'Space Grotesk',sans-serif;white-space:nowrap;z-index:100;`;
   wrap.appendChild(canvas);
   wrap.appendChild(tip);
+  outer.appendChild(wrap);
+  outer.appendChild(legendDiv);
 
   // Búsqueda del punto más cercano con umbral
   let hoverIdx = -1;
@@ -879,7 +891,7 @@ const corrScatterPlot = (() => {
 
   canvas.addEventListener("dblclick", () => clearHighlight());
 
-  return wrap;
+  return outer;
 })();
 return {corrScatterPlot};
 }});
@@ -964,7 +976,7 @@ return {corrScatterPlot};
 <div class="observablehq observablehq--block"><!--:37749503:--></div>
 <div class="observablehq observablehq--block"><!--:18198a81:--></div>
 <div class="observablehq observablehq--block"><!--:f0a7865b:--></div>
-<div class="observablehq observablehq--block"><!--:2b0bfa7b:--></div>
+<div class="observablehq observablehq--block"><!--:eb9a98b8:--></div>
 </main>
 </div>
 </body>
