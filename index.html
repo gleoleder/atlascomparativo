@@ -67,8 +67,8 @@
 import {define} from "./_observablehq/client.a0083439.js";
 import {registerFile} from "./_observablehq/stdlib.277aeab8.js";
 
-registerFile("./campos.json", {"name":"./campos.json","mimeType":"application/json","path":"./_file/campos.d9049a43.json","lastModified":1774901196248,"size":916});
-registerFile("./ciudades.json", {"name":"./ciudades.json","mimeType":"application/json","path":"./_file/ciudades.783449d8.json","lastModified":1774901196389,"size":17100});
+registerFile("./campos.json", {"name":"./campos.json","mimeType":"application/json","path":"./_file/campos.d9049a43.json","lastModified":1774901428983,"size":916});
+registerFile("./ciudades.json", {"name":"./ciudades.json","mimeType":"application/json","path":"./_file/ciudades.783449d8.json","lastModified":1774901429128,"size":17100});
 
 define({id: "d6d41953", mode: "inline", inputs: ["ciudadInput","display"], body: async (ciudadInput,display) => {
 display(await(
@@ -434,7 +434,7 @@ function applyB(campo) {
 return {applyB};
 }});
 
-define({id: "250480fb", inputs: ["mapA","mapB"], outputs: ["highlightManzano","highlightMultiple","clearHighlight","geoms_global","lngs_global","lats_global"], body: (mapA,mapB) => {
+define({id: "5bd37784", inputs: ["mapA","mapB"], outputs: ["highlightManzano","highlightMultiple","clearHighlight"], body: (mapA,mapB) => {
 // ── Resaltar un manzano con neon en ambos mapas ─────────────────
 function highlightManzano(geom, lng, lat) {
   const geojson = {
@@ -450,19 +450,18 @@ function highlightManzano(geom, lng, lat) {
 }
 
 // ── Resaltar múltiples manzanos (selección por área) ────────────
-function highlightMultiple(indices) {
+function highlightMultiple(indices, gms, lngs_, lats_) {
   const features = [];
   let sumLng = 0, sumLat = 0, count = 0;
   for (const i of indices) {
-    if (geoms_global[i]) {
-      features.push({ type: "Feature", geometry: geoms_global[i], properties: {} });
-      if (lngs_global[i] != null) { sumLng += lngs_global[i]; sumLat += lats_global[i]; count++; }
+    if (gms[i]) {
+      features.push({ type: "Feature", geometry: gms[i], properties: {} });
+      if (lngs_[i] != null) { sumLng += lngs_[i]; sumLat += lats_[i]; count++; }
     }
   }
   const geojson = { type: "FeatureCollection", features };
   mapA.getSource("highlight")?.setData(geojson);
   mapB.getSource("highlight")?.setData(geojson);
-  // Volar al centroide de la selección solo si son pocos puntos
   if (count > 0 && indices.size <= 30) {
     const cLng = sumLng / count, cLat = sumLat / count;
     mapA.flyTo({ center: [cLng, cLat], zoom: 14, duration: 600 });
@@ -475,10 +474,7 @@ function clearHighlight() {
   mapA.getSource("highlight")?.setData(empty);
   mapB.getSource("highlight")?.setData(empty);
 }
-
-// Referencias globales a geoms/lngs/lats para uso desde highlightMultiple
-let geoms_global = [], lngs_global = [], lats_global = [];
-return {highlightManzano,highlightMultiple,clearHighlight,geoms_global,lngs_global,lats_global};
+return {highlightManzano,highlightMultiple,clearHighlight};
 }});
 
 define({id: "c8be20d8", inputs: ["Mutable","indice","mapA"], outputs: ["rawFeatures","fetchCityData"], body: (Mutable,indice,mapA) => {
@@ -688,6 +684,358 @@ define({id: "f0a7865b", inputs: ["mapA","mapB"], body: (mapA,mapB) => {
 }
 }});
 
+define({id: "f70418c6", inputs: ["corrResult","html","d3","indice","seleccionA","seleccionB","colorReg","highlightManzano","highlightMultiple","clearHighlight"], outputs: ["corrScatterPlot"], body: (corrResult,html,d3,indice,seleccionA,seleccionB,colorReg,highlightManzano,highlightMultiple,clearHighlight) => {
+// ── Scatter plot Canvas 2D — rápido con cualquier cantidad de puntos ──
+const corrScatterPlot = (() => {
+  if (!corrResult || corrResult.n < 5) {
+    return html`<div class="no-data-msg" style="min-width:320px;padding:24px 0">
+      ${corrResult
+        ? `Solo ${corrResult.n} puntos. Presiona "Buscar" para cargar la ciudad completa.`
+        : "Selecciona una ciudad y presiona Buscar."}
+    </div>`;
+  }
+
+  const { xs, ys, lngs, lats, geoms, regresiones } = corrResult;
+  const n = xs.length;
+
+  // ── Dimensiones y márgenes ───────────────────────────────────
+  const W  = Math.min(820, Math.max(460, window.innerWidth * 0.54));
+  const H  = Math.round(W * 0.60);
+  const ML = 68, MR = 16, MT = 18, MB = 58;
+  const PW = W - ML - MR, PH = H - MT - MB;
+  const dpr = window.devicePixelRatio || 1;
+
+  // ── Escala de datos ──────────────────────────────────────────
+  const xmin = Math.min(...xs), xmax = Math.max(...xs);
+  const ymin = Math.min(...ys), ymax = Math.max(...ys);
+  const xRange = xmax - xmin || 1, yRange = ymax - ymin || 1;
+  const sx = (v) => ML + (v - xmin) / xRange * PW;
+  const sy = (v) => MT + PH - (v - ymin) / yRange * PH;
+  // Inversa para tooltip
+  const ixFromPx = (px) => xmin + (px - ML) / PW * xRange;
+  const iyFromPy = (py) => ymin + (MT + PH - py) / PH * yRange;
+
+  // ── Ticks bonitos ────────────────────────────────────────────
+  function niceTicks(lo, hi, count = 5) {
+    const raw = (hi - lo) / count;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const nice = [1, 2, 2.5, 5, 10].map(f => f * mag).find(s => (hi - lo) / s <= count + 1) || mag * 10;
+    const ticks = [];
+    for (let v = Math.ceil(lo / nice) * nice; v <= hi + nice * 0.01; v += nice)
+      ticks.push(+v.toPrecision(8));
+    return ticks;
+  }
+  const xTicks = niceTicks(xmin, xmax, 6);
+  const yTicks = niceTicks(ymin, ymax, 5);
+
+  // ── Canvas ───────────────────────────────────────────────────
+  const canvas = document.createElement("canvas");
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + "px";
+  canvas.style.height = H + "px";
+  canvas.style.cursor = "crosshair";
+  canvas.style.display = "block";
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+
+  // ── Estado de selección ──────────────────────────────────────
+  let selectedSet = new Set();   // índices seleccionados por brush
+  let brushStart = null;         // {cx, cy} en coordenadas canvas
+  let brushCur   = null;
+  let isBrushing = false;
+
+  // ── Función de dibujo ────────────────────────────────────────
+  function draw(hoveredIdx = -1, brush = null) {
+    ctx.clearRect(0, 0, W, H);
+
+    // Fondo área de plot
+    ctx.fillStyle = "rgba(22,27,34,0.72)";
+    ctx.fillRect(ML, MT, PW, PH);
+
+    // Grilla
+    ctx.strokeStyle = "#2d333b";
+    ctx.lineWidth = 0.5;
+    xTicks.forEach(v => {
+      const x = sx(v);
+      ctx.beginPath(); ctx.moveTo(x, MT); ctx.lineTo(x, MT + PH); ctx.stroke();
+    });
+    yTicks.forEach(v => {
+      const y = sy(v);
+      ctx.beginPath(); ctx.moveTo(ML, y); ctx.lineTo(ML + PW, y); ctx.stroke();
+    });
+
+    // Etiquetas de ejes
+    ctx.font = `11px 'Space Grotesk', sans-serif`;
+    ctx.fillStyle = "#8b949e";
+    ctx.textAlign = "center";
+    xTicks.forEach(v => ctx.fillText(d3.format(".3~g")(v), sx(v), MT + PH + 16));
+    ctx.textAlign = "right";
+    yTicks.forEach(v => ctx.fillText(d3.format(".3~g")(v), ML - 6, sy(v) + 4));
+
+    // Título de ejes
+    ctx.fillStyle = "#e6edf3";
+    ctx.font = `600 12px 'Space Grotesk', sans-serif`;
+    ctx.textAlign = "center";
+    ctx.fillText(indice[seleccionA]?.nombre ?? seleccionA, ML + PW / 2, H - 12);
+    ctx.save();
+    ctx.translate(13, MT + PH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(indice[seleccionB]?.nombre ?? seleccionB, 0, 0);
+    ctx.restore();
+
+    // Líneas de regresión
+    for (const reg of regresiones) {
+      ctx.strokeStyle = colorReg[reg.type] ?? "#fff";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      let first = true;
+      for (let i = 0; i <= 400; i++) {
+        const xv = xmin + xRange * i / 400;
+        const yv = reg.fn(xv);
+        if (!isFinite(yv) || yv < ymin - yRange || yv > ymax + yRange * 2) { first = true; continue; }
+        if (first) { ctx.moveTo(sx(xv), sy(yv)); first = false; }
+        else ctx.lineTo(sx(xv), sy(yv));
+      }
+      ctx.stroke();
+    }
+
+    // Puntos
+    for (let i = 0; i < n; i++) {
+      if (i === hoveredIdx) continue;
+      const px = sx(xs[i]), py = sy(ys[i]);
+      if (selectedSet.has(i)) {
+        // Seleccionado por brush → ámbar
+        ctx.fillStyle = "rgba(245,158,11,0.85)";
+        ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2); ctx.fill();
+      } else {
+        ctx.fillStyle = selectedSet.size > 0 ? "rgba(16,185,129,0.2)" : "rgba(16,185,129,0.5)";
+        ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    // Punto hover resaltado
+    if (hoveredIdx >= 0) {
+      const px = sx(xs[hoveredIdx]), py = sy(ys[hoveredIdx]);
+      ctx.fillStyle = "#f59e0b";
+      ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+
+    // Rectángulo de selección (brush en curso)
+    if (brush) {
+      const rx = Math.min(brush.x0, brush.x1);
+      const ry = Math.min(brush.y0, brush.y1);
+      const rw = Math.abs(brush.x1 - brush.x0);
+      const rh = Math.abs(brush.y1 - brush.y0);
+      ctx.fillStyle = "rgba(245,158,11,0.12)";
+      ctx.fillRect(rx, ry, rw, rh);
+      ctx.strokeStyle = "#f59e0b";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.strokeRect(rx, ry, rw, rh);
+      ctx.setLineDash([]);
+    }
+
+    // Borde
+    ctx.strokeStyle = "#444c56"; ctx.lineWidth = 1;
+    ctx.strokeRect(ML, MT, PW, PH);
+  }
+
+  draw();
+
+  // ── Leyenda HTML (fuera del canvas, a la derecha) ────────────
+  const legendDiv = document.createElement("div");
+  legendDiv.style.cssText = `
+    display:flex;flex-direction:column;justify-content:center;gap:6px;
+    padding:10px 14px;min-width:168px;
+    background:rgba(22,27,34,0.72);border:1px solid #30363d;border-radius:8px;
+    font-family:'Space Grotesk',sans-serif;align-self:center;flex-shrink:0;
+  `;
+  // n total + info selección
+  const nEl = document.createElement("div");
+  nEl.style.cssText = `font-size:10px;color:#8b949e;letter-spacing:0.05em;margin-bottom:4px;border-bottom:1px solid #30363d;padding-bottom:6px;`;
+  nEl.textContent = `n = ${n.toLocaleString()}`;
+  legendDiv.appendChild(nEl);
+
+  const selEl = document.createElement("div");
+  selEl.style.cssText = `font-size:10px;color:#f59e0b;letter-spacing:0.04em;margin-bottom:4px;border-bottom:1px solid #30363d;padding-bottom:6px;display:none;`;
+  selEl.textContent = "";
+  legendDiv.insertBefore(selEl, nEl.nextSibling);
+
+  function updateSelInfo() {
+    if (selectedSet.size === 0) {
+      selEl.style.display = "none";
+    } else {
+      selEl.style.display = "block";
+      selEl.textContent = `Seleccionados: ${selectedSet.size}  (doble clic para limpiar)`;
+    }
+  }
+  // items de regresión
+  for (const reg of regresiones) {
+    const r2txt = isFinite(reg.r2) ? reg.r2.toFixed(3) : "—";
+    const item = document.createElement("div");
+    item.style.cssText = `display:flex;align-items:center;gap:7px;`;
+    const line = document.createElement("span");
+    line.style.cssText = `display:inline-block;width:22px;height:2px;border-radius:2px;flex-shrink:0;background:${colorReg[reg.type] ?? "#fff"};`;
+    const lbl = document.createElement("span");
+    lbl.style.cssText = `font-size:11px;color:#e6edf3;white-space:nowrap;`;
+    lbl.innerHTML = `${reg.type} &nbsp;<span style="color:#8b949e">R²=${r2txt}</span>`;
+    item.appendChild(line);
+    item.appendChild(lbl);
+    legendDiv.appendChild(item);
+  }
+
+  // ── Tooltip overlay ──────────────────────────────────────────
+  const outer = document.createElement("div");
+  outer.style.cssText = "display:flex;align-items:flex-start;gap:12px;";
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "position:relative;display:inline-block;flex-shrink:0;";
+  const tip = document.createElement("div");
+  tip.style.cssText = `position:absolute;pointer-events:none;display:none;
+    background:rgba(22,27,34,0.96);border:1px solid #30363d;border-radius:6px;
+    padding:6px 10px;font-size:12px;color:#e6edf3;
+    font-family:'Space Grotesk',sans-serif;white-space:nowrap;z-index:100;`;
+  wrap.appendChild(canvas);
+  wrap.appendChild(tip);
+  outer.appendChild(wrap);
+  outer.appendChild(legendDiv);
+
+  // ── Estado hover ─────────────────────────────────────────────
+  let hoverIdx = -1;
+  const THRESHOLD_SQ = 20 * 20;
+
+  function canvasXY(e) {
+    const r = canvas.getBoundingClientRect();
+    return { cx: e.clientX - r.left, cy: e.clientY - r.top };
+  }
+  function clampToPlot(cx, cy) {
+    return {
+      cx: Math.max(ML, Math.min(ML + PW, cx)),
+      cy: Math.max(MT, Math.min(MT + PH, cy)),
+    };
+  }
+  function pointsInRect(x0, y0, x1, y1) {
+    const rxMin = Math.min(x0, x1), rxMax = Math.max(x0, x1);
+    const ryMin = Math.min(y0, y1), ryMax = Math.max(y0, y1);
+    const result = new Set();
+    for (let i = 0; i < n; i++) {
+      const px = sx(xs[i]), py = sy(ys[i]);
+      if (px >= rxMin && px <= rxMax && py >= ryMin && py <= ryMax) result.add(i);
+    }
+    return result;
+  }
+
+  // ── Mousedown: inicio de brush ────────────────────────────────
+  canvas.addEventListener("mousedown", (e) => {
+    if (e.button !== 0) return;
+    const { cx, cy } = canvasXY(e);
+    if (cx < ML || cx > ML + PW || cy < MT || cy > MT + PH) return;
+    isBrushing = true;
+    brushStart = { cx, cy };
+    brushCur   = { cx, cy };
+    tip.style.display = "none";
+    e.preventDefault();
+  });
+
+  // ── Mousemove: hover normal O arrastre de brush ───────────────
+  canvas.addEventListener("mousemove", (e) => {
+    const { cx, cy } = canvasXY(e);
+
+    if (isBrushing) {
+      const c = clampToPlot(cx, cy);
+      brushCur = c;
+      const brush = { x0: brushStart.cx, y0: brushStart.cy, x1: brushCur.cx, y1: brushCur.cy };
+      draw(-1, brush);
+      return;
+    }
+
+    if (cx < ML || cx > ML + PW || cy < MT || cy > MT + PH) {
+      if (hoverIdx !== -1) { hoverIdx = -1; draw(); tip.style.display = "none"; }
+      return;
+    }
+    let minD = THRESHOLD_SQ, idx = -1;
+    for (let i = 0; i < n; i++) {
+      const dx = sx(xs[i]) - cx, dy = sy(ys[i]) - cy;
+      const d = dx * dx + dy * dy;
+      if (d < minD) { minD = d; idx = i; }
+    }
+    if (idx === hoverIdx) return;
+    hoverIdx = idx;
+    draw(idx);
+    if (idx >= 0 && selectedSet.size === 0) {
+      const fmtA = d3.format(indice[seleccionA]?.format ?? ".4~g");
+      const fmtB = d3.format(indice[seleccionB]?.format ?? ".4~g");
+      tip.innerHTML =
+        `<b>${indice[seleccionA]?.nombre ?? seleccionA}:</b> ${fmtA(xs[idx])}<br>` +
+        `<b>${indice[seleccionB]?.nombre ?? seleccionB}:</b> ${fmtB(ys[idx])}<br>` +
+        `<span style="color:#8b949e;font-size:10px">Click para localizar · Arrastra para seleccionar grupo</span>`;
+      const tx = Math.min(sx(xs[idx]) + 12, W - 180);
+      const ty = Math.max(sy(ys[idx]) - 56, 0);
+      tip.style.left = tx + "px"; tip.style.top = ty + "px";
+      tip.style.display = "block";
+    } else {
+      tip.style.display = "none";
+    }
+  });
+
+  // ── Mouseup: finalizar brush o click simple ───────────────────
+  canvas.addEventListener("mouseup", (e) => {
+    if (!isBrushing) return;
+    isBrushing = false;
+    const { cx, cy } = canvasXY(e);
+    const dragDist = Math.abs(cx - brushStart.cx) + Math.abs(cy - brushStart.cy);
+
+    if (dragDist < 5) {
+      // Click simple → selección de un punto
+      brushStart = brushCur = null;
+      draw();
+      if (hoverIdx >= 0) {
+        const geom = geoms[hoverIdx];
+        const lng = lngs[hoverIdx], lat = lats[hoverIdx];
+        if (geom) highlightManzano(geom, lng, lat);
+        else if (lng != null) highlightManzano({ type: "Point", coordinates: [lng, lat] }, lng, lat);
+        selectedSet.clear();
+        updateSelInfo();
+      }
+    } else {
+      // Brush → selección múltiple
+      const c = clampToPlot(cx, cy);
+      selectedSet = pointsInRect(brushStart.cx, brushStart.cy, c.cx, c.cy);
+      brushStart = brushCur = null;
+      draw();
+      if (selectedSet.size > 0) {
+        highlightMultiple(selectedSet, geoms, lngs, lats);
+      } else {
+        clearHighlight();
+      }
+      updateSelInfo();
+      tip.style.display = "none";
+    }
+  });
+
+  // Cancelar brush si el mouse sale del canvas durante arrastre
+  canvas.addEventListener("mouseleave", () => {
+    if (isBrushing) {
+      isBrushing = false; brushStart = brushCur = null; draw();
+    }
+    if (hoverIdx !== -1) { hoverIdx = -1; draw(); }
+    tip.style.display = "none";
+  });
+
+  // ── Doble clic: limpiar todo ──────────────────────────────────
+  canvas.addEventListener("dblclick", () => {
+    selectedSet.clear();
+    updateSelInfo();
+    draw();
+    clearHighlight();
+  });
+
+  return outer;
+})();
+return {corrScatterPlot};
+}});
+
 </script>
 </head>
 <body>
@@ -760,7 +1108,7 @@ define({id: "f0a7865b", inputs: ["mapA","mapB"], body: (mapA,mapB) => {
 <div class="observablehq observablehq--block"><!--:26f2c498:--></div>
 <div class="observablehq observablehq--block"><!--:a9b6c8d3:--></div>
 <div class="observablehq observablehq--block"><!--:7d93fc70:--></div>
-<div class="observablehq observablehq--block"><!--:250480fb:--></div>
+<div class="observablehq observablehq--block"><!--:5bd37784:--></div>
 <div class="observablehq observablehq--block"><!--:c8be20d8:--></div>
 <div class="observablehq observablehq--block"><!--:f85bf30c:--></div>
 <div class="observablehq observablehq--block"><!--:5509fe93:--></div>
@@ -768,9 +1116,7 @@ define({id: "f0a7865b", inputs: ["mapA","mapB"], body: (mapA,mapB) => {
 <div class="observablehq observablehq--block"><!--:37749503:--></div>
 <div class="observablehq observablehq--block"><!--:18198a81:--></div>
 <div class="observablehq observablehq--block"><!--:f0a7865b:--></div>
-<div class="observablehq observablehq--block">
-  <div class="observablehq--inspect observablehq--error">SyntaxError: Assignment to external variable 'geoms_global' (14:2)</div>
-</div>
+<div class="observablehq observablehq--block"><!--:f70418c6:--></div>
 </main>
 </div>
 </body>
