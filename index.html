@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="generator" content="Observable Framework v1.13.4">
+<title>Atlas Comparativo</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
+<link rel="preload" as="style" href="./_observablehq/theme-air,near-midnight,alt,wide.9b64840a.css">
+<link rel="preload" as="style" href="./_observablehq/stdlib/inputs.f7bf0e12.css">
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
+<link rel="stylesheet" type="text/css" href="./_observablehq/theme-air,near-midnight,alt,wide.9b64840a.css">
+<link rel="stylesheet" type="text/css" href="./_observablehq/stdlib/inputs.f7bf0e12.css">
+<link rel="modulepreload" href="./_observablehq/client.a0083439.js">
+<link rel="modulepreload" href="./_observablehq/runtime.607a8173.js">
+<link rel="modulepreload" href="./_observablehq/stdlib.277aeab8.js">
+<link rel="modulepreload" href="./_npm/maplibre-gl@5.21.1/13f11ada.js">
+<link rel="modulepreload" href="./_npm/pmtiles@4.4.0/fc4e0a03.js">
+<link rel="modulepreload" href="./_import/components/pmtiles-url.b9ccf4c7.js">
+<link rel="modulepreload" href="./_import/components/capas.cf881e52.js">
+<link rel="modulepreload" href="./_import/components/inputs.6d49fc73.js">
+<link rel="modulepreload" href="./_import/components/correlacion.df6a09c4.js">
+<link rel="modulepreload" href="./_npm/d3@7.9.0/66d82917.js">
+<link rel="modulepreload" href="./_npm/htl@0.3.1/72f4716c.js">
+<link rel="modulepreload" href="./_observablehq/stdlib/inputs.31cd1366.js">
+<link rel="modulepreload" href="./_npm/@observablehq/plot@0.6.17/a96a6bbb.js">
+<link rel="modulepreload" href="./_npm/isoformat@0.2.1/18cbf477.js">
+<link rel="modulepreload" href="./_npm/fflate@0.8.2/e113a0e7.js">
+<link rel="modulepreload" href="./_npm/d3-array@3.2.4/e93ca09f.js">
+<link rel="modulepreload" href="./_npm/d3-axis@3.0.0/0f2de24d.js">
+<link rel="modulepreload" href="./_npm/d3-brush@3.0.0/65eb105b.js">
+<link rel="modulepreload" href="./_npm/d3-chord@3.0.1/7ef8fb2e.js">
+<link rel="modulepreload" href="./_npm/d3-color@3.1.0/aeb57b94.js">
+<link rel="modulepreload" href="./_npm/d3-contour@4.0.2/1d2aed74.js">
+<link rel="modulepreload" href="./_npm/d3-delaunay@6.0.4/87adea64.js">
+<link rel="modulepreload" href="./_npm/d3-dispatch@3.0.1/9ba9c7f3.js">
+<link rel="modulepreload" href="./_npm/d3-drag@3.0.0/4202580c.js">
+<link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/9cffc2bd.js">
+<link rel="modulepreload" href="./_npm/d3-ease@3.0.1/cdd7e898.js">
+<link rel="modulepreload" href="./_npm/d3-fetch@3.0.1/b4e2ad9a.js">
+<link rel="modulepreload" href="./_npm/d3-force@3.0.0/5e804d15.js">
+<link rel="modulepreload" href="./_npm/d3-format@3.1.2/3785bf2d.js">
+<link rel="modulepreload" href="./_npm/d3-geo@3.1.1/40599fb3.js">
+<link rel="modulepreload" href="./_npm/d3-hierarchy@3.1.2/e49e792c.js">
+<link rel="modulepreload" href="./_npm/d3-interpolate@3.0.1/8d1e5425.js">
+<link rel="modulepreload" href="./_npm/d3-path@3.1.0/20d3f133.js">
+<link rel="modulepreload" href="./_npm/d3-polygon@3.0.1/7553081f.js">
+<link rel="modulepreload" href="./_npm/d3-quadtree@3.0.1/0dfd751c.js">
+<link rel="modulepreload" href="./_npm/d3-random@3.0.1/3c90ee06.js">
+<link rel="modulepreload" href="./_npm/d3-scale@4.0.2/720b7f0a.js">
+<link rel="modulepreload" href="./_npm/d3-scale-chromatic@3.1.0/ba24c2e7.js">
+<link rel="modulepreload" href="./_npm/d3-selection@3.0.0/4d94e5b7.js">
+<link rel="modulepreload" href="./_npm/d3-shape@3.2.0/6d3a6726.js">
+<link rel="modulepreload" href="./_npm/d3-time@3.1.0/9f03c579.js">
+<link rel="modulepreload" href="./_npm/d3-time-format@4.1.0/07c9626f.js">
+<link rel="modulepreload" href="./_npm/d3-timer@3.0.1/b58a267d.js">
+<link rel="modulepreload" href="./_npm/d3-transition@3.0.1/004da2ac.js">
+<link rel="modulepreload" href="./_npm/d3-zoom@3.0.0/b5786b3f.js">
+<link rel="modulepreload" href="./_npm/interval-tree-1d@1.0.4/53fe8176.js">
+<link rel="modulepreload" href="./_npm/internmap@2.0.3/e08981d9.js">
+<link rel="modulepreload" href="./_npm/delaunator@5.1.0/d4ec0aa1.js">
+<link rel="modulepreload" href="./_npm/binary-search-bounds@2.0.5/cbf6ba23.js">
+<link rel="modulepreload" href="./_npm/robust-predicates@3.0.3/42820bfa.js">
+<script type="module">
+
+import {define} from "./_observablehq/client.a0083439.js";
+import {registerFile} from "./_observablehq/stdlib.277aeab8.js";
+
+registerFile("./campos.json", {"name":"./campos.json","mimeType":"application/json","path":"./_file/campos.d9049a43.json","lastModified":1774897751608,"size":916});
+registerFile("./ciudades.json", {"name":"./ciudades.json","mimeType":"application/json","path":"./_file/ciudades.783449d8.json","lastModified":1774897751830,"size":17100});
+
+define({id: "d6d41953", mode: "inline", inputs: ["ciudadInput","display"], body: async (ciudadInput,display) => {
+display(await(
+ciudadInput
+))
+}});
+
+define({id: "f51ad1ba", mode: "inline", inputs: ["seleccionInputA","display"], body: async (seleccionInputA,display) => {
+display(await(
+seleccionInputA
+))
+}});
+
+define({id: "da31b497", mode: "inline", inputs: ["leyendaA","display"], body: async (leyendaA,display) => {
+display(await(
+leyendaA
+))
+}});
+
+define({id: "9c02c4f1", mode: "inline", inputs: ["seleccionInputB","display"], body: async (seleccionInputB,display) => {
+display(await(
+seleccionInputB
+))
+}});
+
+define({id: "7f7ea3f6", mode: "inline", inputs: ["leyendaB","display"], body: async (leyendaB,display) => {
+display(await(
+leyendaB
+))
+}});
+
+define({id: "d46c3066", mode: "inline", inputs: ["indice","seleccionA","display"], body: async (indice,seleccionA,display) => {
+display(await(
+indice[seleccionA]?.nombre ?? "—"
+))
+}});
+
+define({id: "3410c8e4", mode: "inline", inputs: ["indice","seleccionB","display"], body: async (indice,seleccionB,display) => {
+display(await(
+indice[seleccionB]?.nombre ?? "—"
+))
+}});
+
+define({id: "0c275b86", mode: "inline", inputs: ["corrStatsPanel","display"], body: async (corrStatsPanel,display) => {
+display(await(
+corrStatsPanel
+))
+}});
+
+define({id: "9377729d", mode: "inline", inputs: ["corrScatterPlot","display"], body: async (corrScatterPlot,display) => {
+display(await(
+corrScatterPlot
+))
+}});
+
+define({id: "7b9538df", outputs: ["maplibregl","PMTiles","Protocol","protocol"], body: async () => {
+const [{default: maplibregl}, {PMTiles, Protocol}] = await Promise.all([import("./_npm/maplibre-gl@5.21.1/13f11ada.js"), import("./_npm/pmtiles@4.4.0/fc4e0a03.js")]);
+// ── Dependencias del mapa ───────────────────────────────────────
+const protocol = new Protocol();
+maplibregl.addProtocol("pmtiles", protocol.tile);
+return {maplibregl,PMTiles,Protocol,protocol};
+}});
+
+define({id: "0a18a397", inputs: ["PMTiles","protocol"], outputs: ["PMTILES_URL","pm"], body: async (PMTiles,protocol) => {
+const {PMTILES_URL} = await import("./_import/components/pmtiles-url.b9ccf4c7.js");
+// ── Cargar PMTiles ──────────────────────────────────────────────
+const pm = new PMTiles(PMTILES_URL);
+protocol.add(pm);
+return {PMTILES_URL,pm};
+}});
+
+define({id: "1e15a01c", inputs: ["FileAttachment"], outputs: ["campos","ciudades","indice","autoSelect","computeAll","extraerPairesDeFeatures","interpretarPearson","interpretarR2"], body: async (FileAttachment) => {
+const [{indice}, {autoSelect}, {computeAll, extraerPairesDeFeatures, interpretarPearson, interpretarR2}] = await Promise.all([import("./_import/components/capas.cf881e52.js"), import("./_import/components/inputs.6d49fc73.js"), import("./_import/components/correlacion.df6a09c4.js")]);
+// ── Cargar datos y componentes ──────────────────────────────────
+const campos   = await FileAttachment("./campos.json").json();
+const ciudades = await FileAttachment("./ciudades.json").json();
+
+return {campos,ciudades,indice,autoSelect,computeAll,extraerPairesDeFeatures,interpretarPearson,interpretarR2};
+}});
+
+define({id: "0b04d2c4", outputs: ["invalido","idCiudad","CIUDAD_KEY","POSICION_KEY","VAR_A_KEY","VAR_B_KEY"], body: () => {
+// ── Constantes ──────────────────────────────────────────────────
+const invalido = "rgba(20, 20, 40, 0.0)";
+const idCiudad = (d) => `${d.departamento}|${d.municipio}|${d.nombre}`;
+const CIUDAD_KEY    = "atlascomp_ciudad";
+const POSICION_KEY  = "atlascomp_posicion";
+const VAR_A_KEY     = "atlascomp_varA";
+const VAR_B_KEY     = "atlascomp_varB";
+return {invalido,idCiudad,CIUDAD_KEY,POSICION_KEY,VAR_A_KEY,VAR_B_KEY};
+}});
+
+define({id: "281bcd76", inputs: ["localStorage","CIUDAD_KEY","ciudades","idCiudad","POSICION_KEY"], outputs: ["stored_ciudad","ciudad_inicial","stored_pos","posicion_inicial","tiene_posicion_stored"], body: (localStorage,CIUDAD_KEY,ciudades,idCiudad,POSICION_KEY) => {
+// ── Ciudad inicial ──────────────────────────────────────────────
+const stored_ciudad = localStorage.getItem(CIUDAD_KEY);
+const ciudad_inicial = ciudades.find((d) => idCiudad(d) === stored_ciudad) ?? ciudades[0];
+const stored_pos = localStorage.getItem(POSICION_KEY);
+const posicion_inicial = stored_pos
+  ? (() => { const p = JSON.parse(stored_pos); return [p.x, p.y]; })()
+  : [ciudad_inicial.x, ciudad_inicial.y];
+const tiene_posicion_stored = !!stored_pos;
+return {stored_ciudad,ciudad_inicial,stored_pos,posicion_inicial,tiene_posicion_stored};
+}});
+
+define({id: "c49d6562", inputs: ["autoSelect","ciudades","ciudad_inicial","Generators"], outputs: ["ciudadInput","ciudad"], body: (autoSelect,ciudades,ciudad_inicial,Generators) => {
+// ── Selector de ciudad ──────────────────────────────────────────
+const ciudadInput = autoSelect(ciudades, (d) => d.nombre, ciudad_inicial);
+const ciudad = Generators.input(ciudadInput);
+return {ciudadInput,ciudad};
+}});
+
+define({id: "ae096321", inputs: ["indice","Inputs","localStorage","VAR_A_KEY","Generators","VAR_B_KEY"], outputs: ["vars","seleccionInputA","seleccionA","seleccionInputB","seleccionB"], body: (indice,Inputs,localStorage,VAR_A_KEY,Generators,VAR_B_KEY) => {
+// ── Selectores de variable ──────────────────────────────────────
+const vars = Object.keys(indice);
+
+const seleccionInputA = Inputs.select(vars, {
+  required: true,
+  format: (d) => indice[d].nombre,
+  value: localStorage.getItem(VAR_A_KEY) ?? "personas_por_hectarea",
+});
+const seleccionA = Generators.input(seleccionInputA);
+
+const seleccionInputB = Inputs.select(vars, {
+  required: true,
+  format: (d) => indice[d].nombre,
+  value: localStorage.getItem(VAR_B_KEY) ?? "educacion_superior",
+});
+const seleccionB = Generators.input(seleccionInputB);
+return {vars,seleccionInputA,seleccionA,seleccionInputB,seleccionB};
+}});
+
+define({id: "45516379", inputs: ["localStorage","VAR_A_KEY","seleccionA","VAR_B_KEY","seleccionB"], body: (localStorage,VAR_A_KEY,seleccionA,VAR_B_KEY,seleccionB) => {
+// ── Persistir selecciones ───────────────────────────────────────
+localStorage.setItem(VAR_A_KEY, seleccionA);
+localStorage.setItem(VAR_B_KEY, seleccionB);
+}});
+
+define({id: "1273cd51", inputs: ["Plot","d3","indice","seleccionA","seleccionB"], outputs: ["leyendaLineal","leyendaA","leyendaB"], body: (Plot,d3,indice,seleccionA,seleccionB) => {
+// ── Leyendas ────────────────────────────────────────────────────
+function leyendaLineal(colormap, ayuda, format) {
+  const valores = colormap.map((c) => c[0]);
+  const domain  = [Math.min(...valores), Math.max(...valores)];
+  return Plot.legend({
+    margin: 0,
+    height: 44,
+    label: ayuda,
+    className: "leyenda",
+    color: {
+      type: "linear",
+      domain,
+      range: colormap.map((c) => c[1]),
+      tickFormat: d3.format(format),
+    },
+  });
+}
+
+const leyendaA = leyendaLineal(
+  indice[seleccionA].colormap,
+  indice[seleccionA].ayuda,
+  indice[seleccionA].format
+);
+
+const leyendaB = leyendaLineal(
+  indice[seleccionB].colormap,
+  indice[seleccionB].ayuda,
+  indice[seleccionB].format
+);
+return {leyendaLineal,leyendaA,leyendaB};
+}});
+
+define({id: "82e32af1", inputs: ["campos","invalido"], outputs: ["capaLineal"], body: (campos,invalido) => {
+// ── Capa lineal MapLibre ────────────────────────────────────────
+function capaLineal(campo, colormap) {
+  return {
+    id: campo,
+    type: "fill",
+    source: "atlas",
+    "source-layer": "manzanos",
+    paint: {
+      "fill-color": [
+        "let", "v", ["to-number", ["get", campos[campo]]],
+        [
+          "case",
+          ["any",
+            ["!", ["has", campos[campo]]],
+            ["!=", ["var", "v"], ["var", "v"]]
+          ],
+          invalido,
+          ["interpolate", ["linear"], ["var", "v"], ...colormap.flat()],
+        ],
+      ],
+      "fill-opacity": ["interpolate", ["linear"], ["zoom"], 6, 0.25, 12, 0.82],
+    },
+    minzoom: 8,
+  };
+}
+return {capaLineal};
+}});
+
+define({id: "1cf3890e", outputs: ["etiquetasSource"], body: () => {
+// ── Fuente de etiquetas (grises) ────────────────────────────────
+const etiquetasSource = {
+  type: "raster",
+  tiles: ["https://a.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png"],
+  tileSize: 256,
+};
+return {etiquetasSource};
+}});
+
+define({id: "01d47408", inputs: ["maplibregl","posicion_inicial","etiquetasSource","PMTILES_URL","invalidation"], outputs: ["containerA","mapA","popupA","readyA"], body: (maplibregl,posicion_inicial,etiquetasSource,PMTILES_URL,invalidation) => {
+// ── Mapa A ──────────────────────────────────────────────────────
+const containerA = document.querySelector("#mapa-a");
+const mapA = new maplibregl.Map({
+  container: containerA,
+  center: posicion_inicial,
+  zoom: 11,
+  minZoom: 8,
+  maxZoom: 16,
+  scrollZoom: true,
+  style: "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+  attributionControl: { compact: true },
+});
+const popupA = new maplibregl.Popup({ closeButton: false, closeOnClick: false });
+mapA.addControl(new maplibregl.NavigationControl(), "bottom-left");
+
+const readyA = new Promise((resolve) => {
+  mapA.on("load", () => {
+    mapA.addSource("etiquetas", etiquetasSource);
+    mapA.addLayer({ id: "etiquetas", type: "raster", source: "etiquetas",
+      paint: { "raster-opacity": 0.7 } });
+    mapA.addSource("atlas", {
+      type: "vector",
+      url: `pmtiles://${PMTILES_URL}`,
+      minzoom: 8,
+      maxzoom: 14,
+    });
+    // Capas de resaltado neon del manzano seleccionado desde el gráfico
+    mapA.addSource("highlight", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    mapA.addLayer({ id: "highlight-fill", type: "fill", source: "highlight",
+      paint: { "fill-color": "#00ff88", "fill-opacity": 0.15 } });
+    mapA.addLayer({ id: "highlight-glow", type: "line", source: "highlight",
+      paint: { "line-color": "#00ff88", "line-width": 14, "line-opacity": 0.35, "line-blur": 8 } });
+    mapA.addLayer({ id: "highlight-line", type: "line", source: "highlight",
+      paint: { "line-color": "#00ff88", "line-width": 2.5, "line-opacity": 1 } });
+    resolve();
+  });
+});
+
+invalidation.then(() => { popupA.remove(); mapA.remove(); });
+return {containerA,mapA,popupA,readyA};
+}});
+
+define({id: "53d35027", inputs: ["maplibregl","posicion_inicial","etiquetasSource","PMTILES_URL","invalidation"], outputs: ["containerB","mapB","popupB","readyB"], body: (maplibregl,posicion_inicial,etiquetasSource,PMTILES_URL,invalidation) => {
+// ── Mapa B ──────────────────────────────────────────────────────
+const containerB = document.querySelector("#mapa-b");
+const mapB = new maplibregl.Map({
+  container: containerB,
+  center: posicion_inicial,
+  zoom: 11,
+  minZoom: 8,
+  maxZoom: 16,
+  scrollZoom: true,
+  style: "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json",
+  attributionControl: { compact: true },
+});
+const popupB = new maplibregl.Popup({ closeButton: false, closeOnClick: false });
+mapB.addControl(new maplibregl.NavigationControl(), "bottom-right");
+
+const readyB = new Promise((resolve) => {
+  mapB.on("load", () => {
+    mapB.addSource("etiquetas", etiquetasSource);
+    mapB.addLayer({ id: "etiquetas", type: "raster", source: "etiquetas",
+      paint: { "raster-opacity": 0.7 } });
+    mapB.addSource("atlas", {
+      type: "vector",
+      url: `pmtiles://${PMTILES_URL}`,
+      minzoom: 8,
+      maxzoom: 14,
+    });
+    mapB.addSource("highlight", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    mapB.addLayer({ id: "highlight-fill", type: "fill", source: "highlight",
+      paint: { "fill-color": "#00ff88", "fill-opacity": 0.15 } });
+    mapB.addLayer({ id: "highlight-glow", type: "line", source: "highlight",
+      paint: { "line-color": "#00ff88", "line-width": 14, "line-opacity": 0.35, "line-blur": 8 } });
+    mapB.addLayer({ id: "highlight-line", type: "line", source: "highlight",
+      paint: { "line-color": "#00ff88", "line-width": 2.5, "line-opacity": 1 } });
+    resolve();
+  });
+});
+
+invalidation.then(() => { popupB.remove(); mapB.remove(); });
+return {containerB,mapB,popupB,readyB};
+}});
+
+define({id: "26f2c498", inputs: ["campos","d3","indice"], outputs: ["bindHover"], body: (campos,d3,indice) => {
+// ── Popup helper ────────────────────────────────────────────────
+function bindHover(map, popup, campo) {
+  if (map.__hoverHandlers) {
+    const h = map.__hoverHandlers;
+    map.off("mouseenter", h.layer, h.enter);
+    map.off("mouseleave", h.layer, h.leave);
+    map.off("click", h.layer, h.clickIn);
+    map.off("click", h.clickAny);
+  }
+
+  const enter = (e) => {
+    map.getCanvas().style.cursor = "pointer";
+    const f = e.features?.[0];
+    if (!f) return;
+    const raw = f.properties?.[campos[campo]];
+    const n = typeof raw === "number" ? raw : raw == null ? NaN : +raw;
+    if (!Number.isFinite(n)) { map.getCanvas().style.cursor = ""; popup.remove(); return; }
+    const fmt = d3.format(indice[campo].format);
+    popup
+      .setHTML(`<div class="popup-inner"><div class="popup-desc">${indice[campo].ayuda}</div><div class="popup-val">${fmt(n)}</div></div>`)
+      .setLngLat(e.lngLat)
+      .addTo(map);
+  };
+
+  let locked = false;
+  const leave = () => { map.getCanvas().style.cursor = ""; if (!locked) popup.remove(); };
+  const clickIn = () => { locked = true; };
+  const clickAny = (e) => {
+    if (!map.queryRenderedFeatures(e.point, { layers: [campo] }).length) {
+      locked = false; popup.remove();
+    }
+  };
+
+  map.on("mouseenter", campo, enter);
+  map.on("mouseleave", campo, leave);
+  map.on("click", campo, clickIn);
+  map.on("click", clickAny);
+  map.__hoverHandlers = { layer: campo, enter, leave, clickIn, clickAny };
+}
+return {bindHover};
+}});
+
+define({id: "a9b6c8d3", inputs: ["indice","mapA","capaLineal","bindHover","popupA","readyA","seleccionA"], outputs: ["applyA"], body: async (indice,mapA,capaLineal,bindHover,popupA,readyA,seleccionA) => {
+// ── Aplicar capa A ──────────────────────────────────────────────
+function applyA(campo) {
+  // Eliminar TODOS los layers de indicadores conocidos para evitar mezcla
+  for (const key of Object.keys(indice)) {
+    if (mapA.getLayer(key)) mapA.removeLayer(key);
+  }
+  mapA.addLayer(capaLineal(campo, indice[campo].colormap), "etiquetas");
+  bindHover(mapA, popupA, campo);
+}
+
+{ await readyA; applyA(seleccionA); }
+return {applyA};
+}});
+
+define({id: "7d93fc70", inputs: ["indice","mapB","capaLineal","bindHover","popupB","readyB","seleccionB"], outputs: ["applyB"], body: async (indice,mapB,capaLineal,bindHover,popupB,readyB,seleccionB) => {
+// ── Aplicar capa B ──────────────────────────────────────────────
+function applyB(campo) {
+  for (const key of Object.keys(indice)) {
+    if (mapB.getLayer(key)) mapB.removeLayer(key);
+  }
+  mapB.addLayer(capaLineal(campo, indice[campo].colormap), "etiquetas");
+  bindHover(mapB, popupB, campo);
+}
+
+{ await readyB; applyB(seleccionB); }
+return {applyB};
+}});
+
+define({id: "6162a554", inputs: ["mapA","mapB"], outputs: ["highlightManzano","clearHighlight"], body: (mapA,mapB) => {
+// ── Resaltar manzano con neon en ambos mapas ────────────────────
+function highlightManzano(geom, lng, lat) {
+  const geojson = {
+    type: "FeatureCollection",
+    features: [{ type: "Feature", geometry: geom, properties: {} }],
+  };
+  mapA.getSource("highlight")?.setData(geojson);
+  mapB.getSource("highlight")?.setData(geojson);
+  if (lng != null && lat != null) {
+    mapA.flyTo({ center: [lng, lat], zoom: 15, duration: 700 });
+    mapB.flyTo({ center: [lng, lat], zoom: 15, duration: 700 });
+  }
+}
+
+function clearHighlight() {
+  const empty = { type: "FeatureCollection", features: [] };
+  mapA.getSource("highlight")?.setData(empty);
+  mapB.getSource("highlight")?.setData(empty);
+}
+return {highlightManzano,clearHighlight};
+}});
+
+define({id: "c8be20d8", inputs: ["Mutable","indice","mapA"], outputs: ["rawFeatures","fetchCityData"], body: (Mutable,indice,mapA) => {
+// ── Features capturadas de la ciudad (independiente del zoom) ───
+const rawFeatures = Mutable([]);
+
+function fetchCityData() {
+  // Busca qué capa de indicador está activa en el mapa A
+  const layer = Object.keys(indice).find((key) => mapA.getLayer(key));
+  if (!layer) return;
+  rawFeatures.value = mapA.queryRenderedFeatures({ layers: [layer] });
+}
+return {rawFeatures,fetchCityData};
+}});
+
+define({id: "f85bf30c", inputs: ["mapA","tiene_posicion_stored","mapB","localStorage","POSICION_KEY","ciudad","fetchCityData","CIUDAD_KEY","idCiudad","clearHighlight"], body: async (mapA,tiene_posicion_stored,mapB,localStorage,POSICION_KEY,ciudad,fetchCityData,CIUDAD_KEY,idCiudad,clearHighlight) => {
+// ── Sincronizar ciudad ──────────────────────────────────────────
+mapA.__skipInitial = tiene_posicion_stored;
+mapB.__skipInitial = tiene_posicion_stored;
+
+mapA.on("moveend", () => {
+  const c = mapA.getCenter();
+  localStorage.setItem(POSICION_KEY, JSON.stringify({ x: c.lng, y: c.lat }));
+});
+
+{
+  await ciudad;
+  if (mapA.__skipInitial) {
+    mapA.__skipInitial = false;
+    mapB.__skipInitial = false;
+    // Carga inicial: capturar datos cuando el mapa esté listo
+    mapA.once("idle", fetchCityData);
+  } else {
+    mapA.flyTo({ center: [ciudad.x, ciudad.y], zoom: 11 });
+    mapB.flyTo({ center: [ciudad.x, ciudad.y], zoom: 11 });
+    localStorage.setItem(CIUDAD_KEY, idCiudad(ciudad));
+    clearHighlight();
+    mapA.once("idle", fetchCityData);
+  }
+}
+}});
+
+define({id: "5509fe93", inputs: ["readyA","readyB","ciudadInput","mapA","mapB","localStorage","CIUDAD_KEY","idCiudad","clearHighlight","fetchCityData"], body: async (readyA,readyB,ciudadInput,mapA,mapB,localStorage,CIUDAD_KEY,idCiudad,clearHighlight,fetchCityData) => {
+// ── Botón Buscar: volar a ciudad y refrescar estadísticas ───────
+{
+  await readyA; await readyB;
+  document.getElementById("btn-buscar").addEventListener("click", () => {
+    const c = ciudadInput.value;
+    if (!c) return;
+    mapA.flyTo({ center: [c.x, c.y], zoom: 11, duration: 900 });
+    mapB.flyTo({ center: [c.x, c.y], zoom: 11, duration: 900 });
+    localStorage.setItem(CIUDAD_KEY, idCiudad(c));
+    clearHighlight();
+    mapA.once("idle", fetchCityData);
+  });
+}
+}});
+
+define({id: "0e8ddee4", inputs: ["extraerPairesDeFeatures","rawFeatures","seleccionA","seleccionB","campos","computeAll"], outputs: ["corrResult"], body: (extraerPairesDeFeatures,rawFeatures,seleccionA,seleccionB,campos,computeAll) => {
+// ── Correlación — reactiva a rawFeatures + variables ────────────
+const corrResult = (() => {
+  const { xs, ys, lngs, lats, geoms } = extraerPairesDeFeatures(
+    rawFeatures, seleccionA, seleccionB, campos
+  );
+  return computeAll(xs, ys, lngs, lats, geoms);
+})();
+return {corrResult};
+}});
+
+define({id: "37749503", outputs: ["colorReg"], body: () => {
+// ── Colores de regresiones ──────────────────────────────────────
+const colorReg = {
+  "lineal":       "#f59e0b",
+  "cuadrática":   "#60a5fa",
+  "exponencial":  "#f87171",
+  "logarítmica":  "#c084fc",
+  "potencial":    "#34d399",
+};
+return {colorReg};
+}});
+
+define({id: "18198a81", inputs: ["corrResult","html","interpretarPearson","colorReg","interpretarR2"], outputs: ["corrStatsPanel"], body: (corrResult,html,interpretarPearson,colorReg,interpretarR2) => {
+// ── Panel de estadísticas de correlación ────────────────────────
+const corrStatsPanel = (() => {
+  if (!corrResult) {
+    return html`<div class="no-data-msg">
+      Selecciona una ciudad y espera a que carguen los datos para ver las correlaciones.
+    </div>`;
+  }
+
+  const { n, r, rho, tau, regresiones } = corrResult;
+
+  function statCard(label, value, interp, cls) {
+    const fv = isFinite(value) ? value.toFixed(3) : "—";
+    return html`<div class="stat-card">
+      <div class="stat-label">${label}</div>
+      <div class="stat-value ${cls}">${fv}</div>
+      <div class="stat-interp">${interp}</div>
+    </div>`;
+  }
+
+  const clsR  = !isFinite(r)   ? "neu" : r   >= 0 ? "pos" : "neg";
+  const clsRho = !isFinite(rho) ? "neu" : rho >= 0 ? "pos" : "neg";
+  const clsTau = !isFinite(tau) ? "neu" : tau >= 0 ? "pos" : "neg";
+
+  const cards = html`<div class="stat-cards">
+    ${statCard("Pearson r", r,   `lineal · ${interpretarPearson(r)}`,   clsR)}
+    ${statCard("Spearman ρ", rho, `rangos · ${interpretarPearson(rho)}`, clsRho)}
+    ${statCard("Kendall τ", tau, `ordinal · ${interpretarPearson(tau)}`, clsTau)}
+    ${statCard("n manzanas", n, "en la vista actual", "neu")}
+  </div>`;
+
+  const filas = regresiones.map((reg) => {
+    const r2v = isFinite(reg.r2) ? reg.r2 : 0;
+    const pct = Math.max(0, Math.min(1, r2v)) * 100;
+    return html`<tr>
+      <td class="reg-tipo">
+        <span class="reg-dot" style="background:${colorReg[reg.type] ?? '#fff'}"></span>
+        ${reg.type}
+      </td>
+      <td class="reg-ec">${reg.label}</td>
+      <td>
+        <span class="reg-r2-bar-wrap">
+          <span class="reg-r2-bar" style="width:${pct}%;background:${colorReg[reg.type] ?? '#10b981'}"></span>
+        </span>
+        ${isFinite(reg.r2) ? reg.r2.toFixed(3) : "—"}
+        <span style="font-size:0.58rem;color:var(--muted)"> (${interpretarR2(reg.r2)})</span>
+      </td>
+    </tr>`;
+  });
+
+  const tabla = html`<table class="reg-table">
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Ecuación</th>
+        <th>R²</th>
+      </tr>
+    </thead>
+    <tbody>${filas}</tbody>
+  </table>`;
+
+  return html`<div>${cards}${tabla}</div>`;
+})();
+return {corrStatsPanel};
+}});
+
+define({id: "f0a7865b", inputs: ["mapA","mapB"], body: (mapA,mapB) => {
+// ── Resize handle ────────────────────────────────────────────────
+{
+  const handle = document.getElementById("corr-resize");
+  const dual   = document.querySelector(".app-dual");
+
+  let startY = 0, startH = 0;
+
+  handle.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    startY = e.clientY;
+    startH = dual.getBoundingClientRect().height;
+    handle.classList.add("dragging");
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "row-resize";
+
+    let rafId = null;
+    const onMove = (e) => {
+      if (rafId) return; // throttle al frame rate del monitor
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const delta = e.clientY - startY;
+        const newH  = Math.max(150, Math.min(window.innerHeight - 200, startH + delta));
+        dual.style.flex = `0 0 ${newH}px`;
+      });
+    };
+
+    const onUp = () => {
+      handle.classList.remove("dragging");
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      mapA.resize();
+      mapB.resize();
+    };
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  });
+
+  // Touch support
+  handle.addEventListener("touchstart", (e) => {
+    const t = e.touches[0];
+    startY = t.clientY;
+    startH = dual.getBoundingClientRect().height;
+    const onMove = (e) => {
+      const delta = e.touches[0].clientY - startY;
+      const newH  = Math.max(150, Math.min(window.innerHeight - 200, startH + delta));
+      dual.style.flex = `0 0 ${newH}px`;
+    };
+    const onEnd = () => {
+      handle.removeEventListener("touchmove", onMove);
+      handle.removeEventListener("touchend", onEnd);
+      mapA.resize(); mapB.resize();
+    };
+    handle.addEventListener("touchmove", onMove);
+    handle.addEventListener("touchend", onEnd);
+  }, { passive: true });
+}
+}});
+
+define({id: "2b0bfa7b", inputs: ["corrResult","html","d3","indice","seleccionA","seleccionB","colorReg","highlightManzano","clearHighlight"], outputs: ["corrScatterPlot"], body: (corrResult,html,d3,indice,seleccionA,seleccionB,colorReg,highlightManzano,clearHighlight) => {
+// ── Scatter plot Canvas 2D — rápido con cualquier cantidad de puntos ──
+const corrScatterPlot = (() => {
+  if (!corrResult || corrResult.n < 5) {
+    return html`<div class="no-data-msg" style="min-width:320px;padding:24px 0">
+      ${corrResult
+        ? `Solo ${corrResult.n} puntos. Presiona "Buscar" para cargar la ciudad completa.`
+        : "Selecciona una ciudad y presiona Buscar."}
+    </div>`;
+  }
+
+  const { xs, ys, lngs, lats, geoms, regresiones } = corrResult;
+  const n = xs.length;
+
+  // ── Dimensiones y márgenes ───────────────────────────────────
+  const W  = Math.min(880, Math.max(500, window.innerWidth * 0.58));
+  const H  = Math.round(W * 0.60);
+  const ML = 68, MR = 24, MT = 18, MB = 58;
+  const PW = W - ML - MR, PH = H - MT - MB;
+  const dpr = window.devicePixelRatio || 1;
+
+  // ── Escala de datos ──────────────────────────────────────────
+  const xmin = Math.min(...xs), xmax = Math.max(...xs);
+  const ymin = Math.min(...ys), ymax = Math.max(...ys);
+  const xRange = xmax - xmin || 1, yRange = ymax - ymin || 1;
+  const sx = (v) => ML + (v - xmin) / xRange * PW;
+  const sy = (v) => MT + PH - (v - ymin) / yRange * PH;
+  // Inversa para tooltip
+  const ixFromPx = (px) => xmin + (px - ML) / PW * xRange;
+  const iyFromPy = (py) => ymin + (MT + PH - py) / PH * yRange;
+
+  // ── Ticks bonitos ────────────────────────────────────────────
+  function niceTicks(lo, hi, count = 5) {
+    const raw = (hi - lo) / count;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const nice = [1, 2, 2.5, 5, 10].map(f => f * mag).find(s => (hi - lo) / s <= count + 1) || mag * 10;
+    const ticks = [];
+    for (let v = Math.ceil(lo / nice) * nice; v <= hi + nice * 0.01; v += nice)
+      ticks.push(+v.toPrecision(8));
+    return ticks;
+  }
+  const xTicks = niceTicks(xmin, xmax, 6);
+  const yTicks = niceTicks(ymin, ymax, 5);
+
+  // ── Canvas ───────────────────────────────────────────────────
+  const canvas = document.createElement("canvas");
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + "px";
+  canvas.style.height = H + "px";
+  canvas.style.cursor = "crosshair";
+  canvas.style.display = "block";
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+
+  // ── Función de dibujo (se llama también al hover) ────────────
+  function draw(hoveredIdx = -1) {
+    ctx.clearRect(0, 0, W, H);
+
+    // Fondo área de plot
+    ctx.fillStyle = "rgba(22,27,34,0.72)";
+    ctx.fillRect(ML, MT, PW, PH);
+
+    // Grilla
+    ctx.strokeStyle = "#2d333b";
+    ctx.lineWidth = 0.5;
+    xTicks.forEach(v => {
+      const x = sx(v);
+      ctx.beginPath(); ctx.moveTo(x, MT); ctx.lineTo(x, MT + PH); ctx.stroke();
+    });
+    yTicks.forEach(v => {
+      const y = sy(v);
+      ctx.beginPath(); ctx.moveTo(ML, y); ctx.lineTo(ML + PW, y); ctx.stroke();
+    });
+
+    // Etiquetas de ejes
+    ctx.font = `11px 'Space Grotesk', sans-serif`;
+    ctx.fillStyle = "#8b949e";
+    ctx.textAlign = "center";
+    xTicks.forEach(v => ctx.fillText(d3.format(".3~g")(v), sx(v), MT + PH + 16));
+    ctx.textAlign = "right";
+    yTicks.forEach(v => ctx.fillText(d3.format(".3~g")(v), ML - 6, sy(v) + 4));
+
+    // Título de ejes
+    ctx.fillStyle = "#e6edf3";
+    ctx.font = `600 12px 'Space Grotesk', sans-serif`;
+    ctx.textAlign = "center";
+    ctx.fillText(indice[seleccionA]?.nombre ?? seleccionA, ML + PW / 2, H - 12);
+    ctx.save();
+    ctx.translate(13, MT + PH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText(indice[seleccionB]?.nombre ?? seleccionB, 0, 0);
+    ctx.restore();
+
+    // Líneas de regresión
+    for (const reg of regresiones) {
+      ctx.strokeStyle = colorReg[reg.type] ?? "#fff";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      let first = true;
+      for (let i = 0; i <= 400; i++) {
+        const xv = xmin + xRange * i / 400;
+        const yv = reg.fn(xv);
+        if (!isFinite(yv) || yv < ymin - yRange || yv > ymax + yRange * 2) { first = true; continue; }
+        if (first) { ctx.moveTo(sx(xv), sy(yv)); first = false; }
+        else ctx.lineTo(sx(xv), sy(yv));
+      }
+      ctx.stroke();
+    }
+
+    // Puntos (todos — canvas maneja 10 000+ sin problema)
+    for (let i = 0; i < n; i++) {
+      const px = sx(xs[i]), py = sy(ys[i]);
+      if (i === hoveredIdx) continue; // el hover se dibuja encima
+      ctx.fillStyle = "rgba(16,185,129,0.5)";
+      ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Punto hover resaltado
+    if (hoveredIdx >= 0) {
+      const px = sx(xs[hoveredIdx]), py = sy(ys[hoveredIdx]);
+      ctx.fillStyle = "#f59e0b";
+      ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+
+    // Leyenda de regresiones
+    let ly = MT + 8;
+    ctx.font = `11px 'Space Grotesk', sans-serif`;
+    for (const reg of regresiones) {
+      const label = `${reg.type}  R²=${isFinite(reg.r2) ? reg.r2.toFixed(3) : "—"}`;
+      const tw = ctx.measureText(label).width;
+      ctx.fillStyle = "rgba(13,17,23,0.78)";
+      ctx.fillRect(ML + 6, ly - 11, tw + 24, 15);
+      ctx.strokeStyle = colorReg[reg.type]; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(ML + 8, ly - 4); ctx.lineTo(ML + 22, ly - 4); ctx.stroke();
+      ctx.fillStyle = "#e6edf3"; ctx.textAlign = "left";
+      ctx.fillText(label, ML + 26, ly);
+      ly += 17;
+    }
+
+    // Borde
+    ctx.strokeStyle = "#444c56"; ctx.lineWidth = 1;
+    ctx.strokeRect(ML, MT, PW, PH);
+
+    // Conteo
+    ctx.font = `10px 'Space Grotesk', sans-serif`;
+    ctx.fillStyle = "#8b949e"; ctx.textAlign = "right";
+    ctx.fillText(`n = ${n}`, ML + PW - 4, MT + 14);
+  }
+
+  draw();
+
+  // ── Tooltip overlay ──────────────────────────────────────────
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "position:relative;display:inline-block;";
+  const tip = document.createElement("div");
+  tip.style.cssText = `position:absolute;pointer-events:none;display:none;
+    background:rgba(22,27,34,0.96);border:1px solid #30363d;border-radius:6px;
+    padding:6px 10px;font-size:12px;color:#e6edf3;
+    font-family:'Space Grotesk',sans-serif;white-space:nowrap;z-index:100;`;
+  wrap.appendChild(canvas);
+  wrap.appendChild(tip);
+
+  // Búsqueda del punto más cercano con umbral
+  let hoverIdx = -1;
+  const THRESHOLD_SQ = 20 * 20; // px²
+
+  canvas.addEventListener("mousemove", (e) => {
+    const r = canvas.getBoundingClientRect();
+    const cx = e.clientX - r.left, cy = e.clientY - r.top;
+    if (cx < ML || cx > ML + PW || cy < MT || cy > MT + PH) {
+      if (hoverIdx !== -1) { hoverIdx = -1; draw(); tip.style.display = "none"; }
+      return;
+    }
+    let minD = THRESHOLD_SQ, idx = -1;
+    for (let i = 0; i < n; i++) {
+      const dx = sx(xs[i]) - cx, dy = sy(ys[i]) - cy;
+      const d = dx * dx + dy * dy;
+      if (d < minD) { minD = d; idx = i; }
+    }
+    if (idx === hoverIdx) return;
+    hoverIdx = idx;
+    draw(idx);
+    if (idx >= 0) {
+      const fmtA = d3.format(indice[seleccionA]?.format ?? ".4~g");
+      const fmtB = d3.format(indice[seleccionB]?.format ?? ".4~g");
+      tip.innerHTML =
+        `<b>${indice[seleccionA]?.nombre ?? seleccionA}:</b> ${fmtA(xs[idx])}<br>` +
+        `<b>${indice[seleccionB]?.nombre ?? seleccionB}:</b> ${fmtB(ys[idx])}<br>` +
+        `<span style="color:#8b949e;font-size:10px">Click para localizar en el mapa</span>`;
+      const tx = Math.min(sx(xs[idx]) + 12, W - 180);
+      const ty = Math.max(sy(ys[idx]) - 56, 0);
+      tip.style.left = tx + "px"; tip.style.top = ty + "px";
+      tip.style.display = "block";
+    } else {
+      tip.style.display = "none";
+    }
+  });
+
+  canvas.addEventListener("mouseleave", () => {
+    if (hoverIdx !== -1) { hoverIdx = -1; draw(); }
+    tip.style.display = "none";
+  });
+
+  canvas.addEventListener("click", () => {
+    if (hoverIdx < 0) return;
+    const geom = geoms[hoverIdx];
+    const lng = lngs[hoverIdx], lat = lats[hoverIdx];
+    if (geom) highlightManzano(geom, lng, lat);
+    else if (lng != null) highlightManzano({ type: "Point", coordinates: [lng, lat] }, lng, lat);
+  });
+
+  canvas.addEventListener("dblclick", () => clearHighlight());
+
+  return wrap;
+})();
+return {corrScatterPlot};
+}});
+
+</script>
+</head>
+<body>
+<div id="observablehq-center">
+<main id="observablehq-main" class="observablehq">
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.css">
+<link rel="stylesheet" type="text/css" href="./_file/index.32a582f9.css">
+<div class="app">
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-title">Atlas Comparativo</span>
+      <span class="brand-sub">Censo 2024 · Bolivia</span>
+    </div>
+    <div class="ciudad-wrapper">
+      <observablehq-loading></observablehq-loading><!--:d6d41953:-->
+      <button class="btn-buscar" id="btn-buscar">▶ Buscar</button>
+    </div>
+  </header>
+  <div class="app-dual">
+    <div class="map-panel" id="panel-a">
+      <div class="map-topbar">
+        <div class="map-topbar-row">
+          <span class="map-tag map-tag-a">MAPA A</span>
+          <observablehq-loading></observablehq-loading><!--:f51ad1ba:-->
+        </div>
+      </div>
+      <div class="map-stage">
+        <div id="mapa-a"></div>
+        <div class="map-legend-overlay"><observablehq-loading></observablehq-loading><!--:da31b497:--></div>
+      </div>
+    </div>
+    <div class="map-panel" id="panel-b">
+      <div class="map-topbar">
+        <div class="map-topbar-row">
+          <span class="map-tag map-tag-b">MAPA B</span>
+          <observablehq-loading></observablehq-loading><!--:9c02c4f1:-->
+        </div>
+      </div>
+      <div class="map-stage">
+        <div id="mapa-b"></div>
+        <div class="map-legend-overlay"><observablehq-loading></observablehq-loading><!--:7f7ea3f6:--></div>
+      </div>
+    </div>
+  </div>
+  <div class="resize-handle" id="corr-resize"></div>
+  <div class="app-corr">
+    <div class="corr-header">
+      Correlación: <observablehq-loading></observablehq-loading><!--:d46c3066:--> &nbsp;↔&nbsp; <observablehq-loading></observablehq-loading><!--:3410c8e4:-->
+    </div>
+    <div class="corr-body">
+      <div class="corr-stats"><observablehq-loading></observablehq-loading><!--:0c275b86:--></div>
+      <div class="corr-scatter"><observablehq-loading></observablehq-loading><!--:9377729d:--></div>
+    </div>
+    <div class="corr-footer">Elaborado por: John Leonardo Cabrera Espíndola</div>
+  </div>
+</div>
+<div class="observablehq observablehq--block"><!--:7b9538df:--></div>
+<div class="observablehq observablehq--block"><!--:0a18a397:--></div>
+<div class="observablehq observablehq--block"><!--:1e15a01c:--></div>
+<div class="observablehq observablehq--block"><!--:0b04d2c4:--></div>
+<div class="observablehq observablehq--block"><!--:281bcd76:--></div>
+<div class="observablehq observablehq--block"><!--:c49d6562:--></div>
+<div class="observablehq observablehq--block"><!--:ae096321:--></div>
+<div class="observablehq observablehq--block"><!--:45516379:--></div>
+<div class="observablehq observablehq--block"><!--:1273cd51:--></div>
+<div class="observablehq observablehq--block"><!--:82e32af1:--></div>
+<div class="observablehq observablehq--block"><!--:1cf3890e:--></div>
+<div class="observablehq observablehq--block"><!--:01d47408:--></div>
+<div class="observablehq observablehq--block"><!--:53d35027:--></div>
+<div class="observablehq observablehq--block"><!--:26f2c498:--></div>
+<div class="observablehq observablehq--block"><!--:a9b6c8d3:--></div>
+<div class="observablehq observablehq--block"><!--:7d93fc70:--></div>
+<div class="observablehq observablehq--block"><!--:6162a554:--></div>
+<div class="observablehq observablehq--block"><!--:c8be20d8:--></div>
+<div class="observablehq observablehq--block"><!--:f85bf30c:--></div>
+<div class="observablehq observablehq--block"><!--:5509fe93:--></div>
+<div class="observablehq observablehq--block"><!--:0e8ddee4:--></div>
+<div class="observablehq observablehq--block"><!--:37749503:--></div>
+<div class="observablehq observablehq--block"><!--:18198a81:--></div>
+<div class="observablehq observablehq--block"><!--:f0a7865b:--></div>
+<div class="observablehq observablehq--block"><!--:2b0bfa7b:--></div>
+</main>
+</div>
+</body>
+</html>
